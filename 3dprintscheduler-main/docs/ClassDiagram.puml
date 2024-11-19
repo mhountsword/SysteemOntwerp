@@ -1,0 +1,92 @@
+@startuml
+
+abstract class Printer{
+- int id
+-String name
+-String manufacturer
++ int getId()
++ String getName()
++ abstract int CalculatePrintTime(String)
++ abstract Spool[] getCurrentSpools()
++abstract void setCurrentSpools(ArrayList<Spool>)
++ abstract boolean printFits(Print)
++String toString()
+}
+
+enum FilamentType{
+PLA
+PETG
+ABS
+}
+
+class HousedPrinter{
++ HousedPrinter()
+}
+
+class MultiColor{
+- int maxColors
+- Spool spool2
+- Spool spool3
+- Spool spool4
+
++ void setCurrentSpools((ArrayList<Spool>)
++ Spool[] getCurrentSpools()
++String toString()
++int getMaxColors()
+}
+
+class Print{
+-String name
+-int height
+-int width
+-int length
+-ArrayList<Double> filamentLength
+-in printTime
++String toString
++String getName
++Double getLength
++int getHeight
++int getWidth
++ ArrayList<Double> getFilamentLength
+}
+
+class PrintTask{
+-Print print
+-List<String> colors
+-FilamentType filamentType
+
++ List<String> getColors()
++FilamentType getFilamentType()
++Print getPrint()
++String toString
+}
+class Spool{
+-final int id
+-final String color
+- final FilamentType filamentType
+-double length
+
++int getId()
++double getLength()
++boolean spoolMatch(String, FilamentType)
++boolean reduceLength(double)
++String getColor()
++FilamentType getFilamentType()
++String toString()
+}
+
+class StandardFDM{
+-final int maxX
+-final int maxY
+-final int maxZ
+- Spool currentSpool
+
++void setCurrentSpools(ArrayList<Spool>)
++void setCurrentSpool(Spool)
++Spool getCurrentSpool()
++Spool[] getCurrentSpools
++boolean printFits(Print)
++int CalculatePrintTime(String)
++Sgtring toString()
+}
+@enduml
