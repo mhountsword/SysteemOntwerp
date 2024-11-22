@@ -1,60 +1,52 @@
 @startuml
-
 abstract class Printer{
 - int id
 -String name
 -String manufacturer
 + int getId()
 + String getName()
-+ abstract int CalculatePrintTime(String)
-+ abstract Spool[] getCurrentSpools()
-+abstract void setCurrentSpools(ArrayList<Spool>)
-+ abstract boolean printFits(Print)
++ {abstract} int CalculatePrintTime(String)
++ {abstract} Spool[] getCurrentSpools()
++{abstract} void setCurrentSpools(ArrayList<Spool>)
++ {abstract} boolean printFits(Print)
 +String toString()
 }
-
 enum FilamentType{
-PLA
-PETG
-ABS
+    PLA
+    PETG
+    ABS
 }
-
 class HousedPrinter{
 + HousedPrinter()
 }
-
 class MultiColor{
 - int maxColors
 - Spool spool2
 - Spool spool3
 - Spool spool4
-
 + void setCurrentSpools((ArrayList<Spool>)
 + Spool[] getCurrentSpools()
 +String toString()
 +int getMaxColors()
 }
-
 class Print{
 -String name
 -int height
 -int width
 -int length
 -ArrayList<Double> filamentLength
--in printTime
-+String toString
-+String getName
-+Double getLength
-+int getHeight
-+int getWidth
-+ ArrayList<Double> getFilamentLength
+-int printTime
++String toString()
++String getName()
++Double getLength()
++int getHeight()
++int getWidth()
++ ArrayList<Double> getFilamentLength()
 }
-
 class PrintTask{
 -Print print
 -List<String> colors
 -FilamentType filamentType
-
 + List<String> getColors()
 +FilamentType getFilamentType()
 +Print getPrint()
@@ -65,7 +57,6 @@ class Spool{
 -final String color
 - final FilamentType filamentType
 -double length
-
 +int getId()
 +double getLength()
 +boolean spoolMatch(String, FilamentType)
@@ -74,13 +65,11 @@ class Spool{
 +FilamentType getFilamentType()
 +String toString()
 }
-
 class StandardFDM{
 -final int maxX
 -final int maxY
 -final int maxZ
-- Spool currentSpool
-
+-Spool currentSpool
 +void setCurrentSpools(ArrayList<Spool>)
 +void setCurrentSpool(Spool)
 +Spool getCurrentSpool()
@@ -89,4 +78,87 @@ class StandardFDM{
 +int CalculatePrintTime(String)
 +Sgtring toString()
 }
+class PrinterManager{
+-List<Printer> printers
+- List<Print> prints
+-List<Spool> spools
+-List<Printer> freePrinters
+-List<PrintTask> pendingPrintTasks
+- runningPrintTasks : Map<Printer, PrintTask>
++void addPrinter(int, int, String, String, int, int, int, int)
++boolean conatainsSpool(final List<Spool>, final String)
++void selectPrintTask(Printer)
++void startInitialQueue()
++void addPrinter(String, int, int, int,ArrayList<Double>, int)
++List<Print> getPrints()
++List<Printer> getPrinters()
++PrintTask getPrinterCurrentTask(Printer)
++List<PrintTask> getpendingPrintTasks()
++void addPrintTask(String, List<String>, FilamentType)
++Print findPrint(String)
++Print findPrint(int)
++void addSpool(Spool)
++List<Spool> getSpools()
++Spool getSpoolById(int)
++void registerPrinterFailure(int)
++void registerCompletion(int)
+-void printError(String)
+}
+class Main{
+Scanner scanner
+-PrinterManager manager
+-String printStrategy
++{static} void main(String[])
++void run(String[])
++void menu()
+-void startPrintQueue()
+-void exit()
+-void changePrintStrategy()
+-void registerPrintCompletion()
+-void registerPrinterFailure()
+-void addNewPrintTask()
+-void showPrints()
+-void showSpools()
+-void showPrinters()
+-void showPendingPrintTasks()
+-void readPrintsFromFIle(String)
+-void readPrintersFromFile(String)
+-void readSpoolsFromFile(String)
++int menuChoice(int)
++String stringInput()
++int numberInput()
++int numberInput(int, int)
+}
+
+StandardFDM <|-- Printer
+MultiColor <|-- StandardFDM
+HousedPrinter <|-- StandardFDM
+PrintTask *.. FilamentType
+PrintTask *.. Print
+MultiColor *.. Spool
+Spool *.. FilamentType
+StandardFDM *.. Spool
+Main *.. PrinterManager
+PrinterManager::printers *.. Printer
+PrinterManager::prints *.. Print
+PrinterManager::spools *.. Spool
+PrinterManager::freeSpools *.. Spool
+PrinterManager::freePrinters *.. Printer
+PrinterManager::pendingPrintTask *.. PrintTask
+PrinterManager--> Printer : "key in Map"
+PrinterManager--> PrintTask : "value in Map"
+StandardFDM::currentSpool *.. Spool
+Spool::filamentType *.. FilamentType
+PrintTask::filamentType *.. FilamentType
+Main::manager *.. PrinterManager
+MultiColor::spool2 *.. Spool
+MultiColor::spool3 *.. Spool
+MultiColor::spool4 *.. Spool
+
+
+
+
+
+
+
 @enduml
