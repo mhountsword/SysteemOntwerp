@@ -105,7 +105,7 @@ class PrinterManager{
 -void printError(String)
 }
 class Main{
-Scanner scanner
+~Scanner scanner
 -PrinterManager manager
 -String printStrategy
 +{static} void main(String[])
@@ -147,6 +147,9 @@ PrinterManager::freePrinters *.. Printer
 PrinterManager::pendingPrintTask *.. PrintTask
 PrinterManager--> Printer : "key in Map"
 PrinterManager--> PrintTask : "value in Map"
+PrinterManager::getSpoolById *.. Spool
+PrinterManager::getSpools *.. Spool
+Printer::getCurrentSpools *.. Spool
 StandardFDM::currentSpool *.. Spool
 Spool::filamentType *.. FilamentType
 PrintTask::filamentType *.. FilamentType
