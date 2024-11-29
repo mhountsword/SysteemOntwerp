@@ -1,5 +1,4 @@
 package nl.saxion.Models;
-
 import java.util.ArrayList;
 
 /* Standard cartesian FDM printer */
@@ -14,7 +13,6 @@ public class StandardFDM extends Printer {
         this.maxX = maxX;
         this.maxY = maxY;
         this.maxZ = maxZ;
-
     }
 
     public void setCurrentSpools(ArrayList<Spool> spools) {

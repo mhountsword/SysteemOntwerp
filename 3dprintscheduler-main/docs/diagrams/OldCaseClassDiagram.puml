@@ -82,6 +82,7 @@ class PrinterManager{
 -List<Printer> printers
 - List<Print> prints
 -List<Spool> spools
+-List<Spool> freeSpools
 -List<Printer> freePrinters
 -List<PrintTask> pendingPrintTasks
 - runningPrintTasks : Map<Printer, PrintTask>
@@ -133,31 +134,31 @@ class Main{
 StandardFDM <|-- Printer
 MultiColor <|-- StandardFDM
 HousedPrinter <|-- StandardFDM
-PrintTask *.. FilamentType
-PrintTask *.. Print
-MultiColor *.. Spool
-Spool *.. FilamentType
-StandardFDM *.. Spool
-Main *.. PrinterManager
-PrinterManager::printers *.. Printer
-PrinterManager::prints *.. Print
-PrinterManager::spools *.. Spool
-PrinterManager::freeSpools *.. Spool
-PrinterManager::freePrinters *.. Printer
-PrinterManager::pendingPrintTask *.. PrintTask
+Spool::getFilamentType o-- FilamentType
+StandardFDM::getCurrentSpools o-- Spool
+PrinterManager::printers o-- Printer
+PrinterManager::prints o-- Print
+PrinterManager::spools o-- Spool
+PrinterManager::freeSpools o-- Spool
+PrinterManager::freePrinters o-- Printer
+PrinterManager::pendingPrintTask o-- PrintTask
 PrinterManager--> Printer : "key in Map"
 PrinterManager--> PrintTask : "value in Map"
-PrinterManager::getSpoolById *.. Spool
-PrinterManager::getSpools *.. Spool
-Printer::getCurrentSpools *.. Spool
-StandardFDM::currentSpool *.. Spool
-Spool::filamentType *.. FilamentType
-PrintTask::filamentType *.. FilamentType
-Main::manager *.. PrinterManager
-MultiColor::spool2 *.. Spool
-MultiColor::spool3 *.. Spool
-MultiColor::spool4 *.. Spool
-
+PrinterManager::getSpoolById o-- Spool
+PrinterManager::getSpools o-- Spool
+PrinterManager::getPrinterCurrentTask o-- PrintTask
+PrinterManager::getpendingPrintTasks o-- PrintTask
+Printer::getCurrentSpools o-- Spool
+StandardFDM::currentSpool o-- Spool
+StandardFDM::getCurrentSpool o--Spool
+Spool::filamentType o-- FilamentType
+PrintTask::filamentType o-- FilamentType
+PrintTask::getFilamentType o-- FilamentType
+Main::manager o-- PrinterManager
+MultiColor::spool2 *--Spool
+MultiColor::spool3 *-- Spool
+MultiColor::spool4 *-- Spool
+MultiColor::getCurrentSpools *-- Spool
 
 
 
