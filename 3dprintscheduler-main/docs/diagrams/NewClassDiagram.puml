@@ -1,13 +1,37 @@
 @startuml
 'https://plantuml.com/class-diagram
+
+class Main {
+-Console console
+-PrintManager printManager
+-Facade facade
++{static}void main(String[])
++void run(String[])
++void menu()
+-void initialize()
++String stringInput()
++int menuChoice(int)
++int numberInput()
++int numberInput(int, int)
+}
+
+class Reader {
+-Scanner scanner
++ArrayList<Print> readPrintsFromFile(String)
++ArrayList<Printers> readPrintersFromFile(String)
++ArrayList<Spools> readSpoolsFromFile(String)
+}
+
+Main::menuChoice *.. Facade
+Main::initialize *.. Reader
+
 +class PrinterManager{
 -List<Printer> printers
 -List<Printer> freePrinters
 -List<Spool> spools
 -List<Spool> freeSpools
 +void startInitialQueue()
-+void addPrinter(int, int, String, String, int, int, int, int)
-+void addPrinter(String, int, int, int, ArrayList<Double>, int)
++void addPrinter(type)
 +void registerPrinterFailure(int)
 +void registerCompletion(int)
 +void printError(String)
@@ -21,18 +45,22 @@ PrinterManager::freeSpools *.. Spool
 PrinterManager::runningPrintTask *.. Printer
 PrinterManager::runningPrintTask *.. PrintTask
 
-+class TaskManager{
++class Facade{
     - List<PrintTask> pendingTasks
     - Map<Printer, PrintTask> runningTasks
     + void addTask(PrintTask task)
     + void assignTasks(PrinterManager printerManager)
     + void completeTask(Printer printer)
     + void handleTaskFailure(Printer printer)
+    +void showPrints()
+    +void showSpools()
+    +void showPrinters()
+    +void showPendingPrintTasks()
 }
-TaskManager::runningTasks *-- Printer
-TaskManager::runningTasks *-- PrintTask
-TaskManager o-- PrinterManager
-TaskManager o-- PrintTask
+Facade::runningTasks *-- Printer
+Facade::runningTasks *-- PrintTask
+Facade o-- PrinterManager
+Facade o-- PrintTask
 
 +class PrintManager{
 -List<Print> prints
@@ -73,6 +101,7 @@ PrintTask::filamentType *.. FilamentType
     PETG
     ABS
 }
+
 +abstract class Printer{
 - int id
 -String name
@@ -82,27 +111,15 @@ PrintTask::filamentType *.. FilamentType
 - final int maxX;
 - final int maxY;
 - final int maxZ;
--  Spool currentSpool;
-+ Spool getCurrentSpool()
-+ void setCurrenSpool()
+- Spool currentSpool;
 + {abstract} int CalculatePrintTime(String)
-+ {abstract} Spool[] getCurrentSpools()
 +{abstract} void setCurrentSpools(ArrayList<Spool>)
 + {abstract} boolean printFits(Print)
 +String toString()
 }
 Printer::currentSpool *-- Spool
 
-+class MultiColor{
-- int maxColors;
-- Spool spool2
--Spool spool3
-- Spool spool4
-+void setCurrentSpools((ArrayList<Spool>)
-}
-MultiColor::spool2 *-- Spool
-MultiColor::spool3 *-- Spool
-MultiColor::spool4 *-- Spool
+
 
 
 +class Print{
@@ -124,7 +141,7 @@ MultiColor::spool4 *-- Spool
 - final int id;
 - final String color;
 - final FilamentType filamentType;
--double length;
+-double lenght;
 +int getId()
 +double getlength()
 +String getColor()
@@ -134,6 +151,36 @@ MultiColor::spool4 *-- Spool
 }
 
 Spool::filamentType o-- FilamentType
-Printer --> MultiColor
+
+
+-class StandardFDM{
++void setCurrentSpool(Spool spool)
++Spool getCurrentSpool()
++ArrayList<Spool> getCurrentSpools()
++boolean printFits(Print print)
++StandardFDM createNewFDMPrinter()
++String toString()
+}
+
+Printer *-- StandardFDM
+
+-class MultiColor{
+- int maxColors;
+- ArrayList<Spool> spools
++void setCurrentSpools((ArrayList<Spool>)
++ArrayList<Spool> getCurrentSpools()
++MultiColor createNewMultiColorPrinter()
+}
+Printer <-- MultiColor
+MultiColor::spools <-- Spool
+
++class PrinterFactory{
+Printer createNewPrinter(String type)
+}
+PrinterManager::addPrinter --> PrinterFactory
+PrinterFactory --> StandardFDM::createNewFDMPrinter
+PrinterFactory --> MultiColor::createNewMultiColorPrinter
+
+
 
 @enduml
