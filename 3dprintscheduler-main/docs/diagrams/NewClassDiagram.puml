@@ -111,10 +111,13 @@ PrintTask::filamentType *.. FilamentType
 - final int maxY;
 - final int maxZ;
 - Spool currentSpool;
+- boolean housed;
++ boolean isHoused()
 + {abstract} int CalculatePrintTime(String)
-+{abstract} void setCurrentSpools(ArrayList<Spool>)
++ {abstract} void setCurrentSpools(ArrayList<Spool>)
 + {abstract} boolean printFits(Print)
 +String toString()
+
 }
 Printer::currentSpool *-- Spool
 
@@ -158,10 +161,6 @@ Spool::filamentType o-- FilamentType
 +String toString()
 }
 
-+class HousedPrinter{
-+HousedPrinter createNewHousedPrinter(String[] printerValues)
-}
-
 Printer *-- StandardFDM
 
 -class MultiColor{
@@ -179,7 +178,6 @@ Printer createNewPrinter(String type, String[] printerValues)
 }
 PrinterManager::addPrinter --> PrinterFactory
 PrinterFactory --> StandardFDM::createNewFDMPrinter
-PrinterFactory --> HousedPrinter
 PrinterFactory --> MultiColor::createNewMultiColorPrinter
 
 
