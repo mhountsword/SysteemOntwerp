@@ -3,13 +3,13 @@ package nl.saxion.Models;
 import java.util.ArrayList;
 
 /* Printer capable of printing multiple colors. */
-public class MultiColor extends StandardFDM {
+public class oldMultiColor extends oldStandardFDM {
     private int maxColors;
     private Spool spool2;
     private Spool spool3;
     private Spool spool4;
 
-    public MultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
+    public oldMultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
         super(id, printerName, manufacturer, maxX, maxY, maxZ);
         this.maxColors = maxColors;
     }

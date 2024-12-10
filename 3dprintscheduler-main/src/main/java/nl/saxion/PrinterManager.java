@@ -1,7 +1,6 @@
 package nl.saxion;
 
 import nl.saxion.Models.*;
-import org.json.simple.JSONArray;
 
 import java.util.*;
 
@@ -16,7 +15,7 @@ public class PrinterManager {
 
     public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
         if (printerType == 1) {
-            StandardFDM printer = new StandardFDM(id, printerName, manufacturer, maxX, maxY, maxZ);
+            oldStandardFDM printer = new oldStandardFDM(id, printerName, manufacturer, maxX, maxY, maxZ);
             printers.add(printer);
             freePrinters.add(printer);
         } else if (printerType == 2) {
@@ -24,7 +23,7 @@ public class PrinterManager {
             printers.add(printer);
             freePrinters.add(printer);
         } else if (printerType == 3) {
-            MultiColor printer = new MultiColor(id, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
+            oldMultiColor printer = new oldMultiColor(id, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
             printers.add(printer);
             freePrinters.add(printer);
         }
@@ -41,7 +40,7 @@ public class PrinterManager {
         if(spools[0] != null) {
             for (PrintTask printTask : pendingPrintTasks) {
                 if (printer.printFits(printTask.getPrint())) {
-                    if (printer instanceof StandardFDM && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() == 1) {
+                    if (printer instanceof oldStandardFDM && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() == 1) {
                         if (spools[0].spoolMatch(printTask.getColors().get(0), printTask.getFilamentType())) {
                             runningPrintTasks.put(printer, printTask);
                             freePrinters.remove(printer);
@@ -57,7 +56,7 @@ public class PrinterManager {
                             break;
                         }
                         // For multicolor the order of spools does matter, so they have to match.
-                    } else if (printer instanceof MultiColor && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() <= ((MultiColor) printer).getMaxColors()) {
+                    } else if (printer instanceof oldMultiColor && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() <= ((oldMultiColor) printer).getMaxColors()) {
                         boolean printWorks = true;
                         for (int i = 0; i < spools.length && i < printTask.getColors().size(); i++) {
                             if (!spools[i].spoolMatch(printTask.getColors().get(i), printTask.getFilamentType())) {
@@ -81,7 +80,7 @@ public class PrinterManager {
             // If we didn't find a print for the current spool we search for a print with the free spools.
             for(PrintTask printTask: pendingPrintTasks) {
                 if(printer.printFits(printTask.getPrint()) && getPrinterCurrentTask(printer) == null) {
-                    if (printer instanceof StandardFDM && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() == 1) {
+                    if (printer instanceof oldStandardFDM && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() == 1) {
                         Spool chosenSpool = null;
                         for (Spool spool : freeSpools) {
                             if (spool.spoolMatch(printTask.getColors().get(0), printTask.getFilamentType())) {
@@ -93,7 +92,7 @@ public class PrinterManager {
                             freeSpools.add(printer.getCurrentSpools()[0]);
                             System.out.println("- Spool change: Please place spool " + chosenSpool.getId() + " in printer " + printer.getName());
                             freeSpools.remove(chosenSpool);
-                            ((StandardFDM) printer).setCurrentSpool(chosenSpool);
+                            ((oldStandardFDM) printer).setCurrentSpool(chosenSpool);
                             freePrinters.remove(printer);
                             chosenTask = printTask;
                         }
@@ -109,11 +108,11 @@ public class PrinterManager {
                             freeSpools.add(printer.getCurrentSpools()[0]);
                             System.out.println("- Spool change: Please place spool " + chosenSpool.getId() + " in printer " + printer.getName());
                             freeSpools.remove(chosenSpool);
-                            ((StandardFDM) printer).setCurrentSpool(chosenSpool);
+                            ((oldStandardFDM) printer).setCurrentSpool(chosenSpool);
                             freePrinters.remove(printer);
                             chosenTask = printTask;
                         }
-                    } else if (printer instanceof MultiColor && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() <= ((MultiColor) printer).getMaxColors()) {
+                    } else if (printer instanceof oldMultiColor && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() <= ((oldMultiColor) printer).getMaxColors()) {
                         ArrayList<Spool> chosenSpools = new ArrayList<>();
                         for (int i = 0; i < printTask.getColors().size(); i++) {
                             for (Spool spool : freeSpools) {
