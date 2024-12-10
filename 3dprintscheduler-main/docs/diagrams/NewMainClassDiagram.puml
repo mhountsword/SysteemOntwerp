@@ -115,6 +115,7 @@ PrintTask::filamentType *.. FilamentType
 + {abstract} int CalculatePrintTime(String)
 +{abstract} void setCurrentSpools(ArrayList<Spool>)
 + {abstract} boolean printFits(Print)
++ boolean isHoused()
 +String toString()
 }
 Printer::currentSpool *-- Spool
