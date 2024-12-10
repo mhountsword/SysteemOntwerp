@@ -13,6 +13,9 @@ class Main {
 +int menuChoice(int)
 +int numberInput()
 +int numberInput(int, int)
++void showPrints()
++void showSpools()
++void showPrinters()
 }
 
 class Reader {
@@ -31,11 +34,12 @@ Main::initialize *.. Reader
 -List<Spool> spools
 -List<Spool> freeSpools
 +void startInitialQueue()
-+void addPrinter(type)
++void addPrinter(type, String[] printerValues)
 +void registerPrinterFailure(int)
 +void registerCompletion(int)
 +void printError(String)
--void List<PrintTask> getPrintTasks()
++List<Printer> getPrinters()
++List<PrintTask> getPrintTasks()
 }
 PrinterManager::printers *-- Printer
 PrinterManager::freePrinters *.. Printer
@@ -46,16 +50,10 @@ PrinterManager::runningPrintTask *.. Printer
 PrinterManager::runningPrintTask *.. PrintTask
 
 +class Facade{
-    - List<PrintTask> pendingTasks
-    - Map<Printer, PrintTask> runningTasks
     + void addTask(PrintTask task)
     + void assignTasks(PrinterManager printerManager)
     + void completeTask(Printer printer)
     + void handleTaskFailure(Printer printer)
-    +void showPrints()
-    +void showSpools()
-    +void showPrinters()
-    +void showPendingPrintTasks()
 }
 Facade::runningTasks *-- Printer
 Facade::runningTasks *-- PrintTask
@@ -67,6 +65,7 @@ Facade o-- PrintTask
 +List<Print> getPrints()
 +Print findPrint(String)
 +Print findPrint(int)
++void showPendingPrintTasks()
 }
 PrintManager::prints *.. Print
 
@@ -119,9 +118,6 @@ PrintTask::filamentType *.. FilamentType
 }
 Printer::currentSpool *-- Spool
 
-
-
-
 +class Print{
 -String name
 - int height
@@ -158,8 +154,12 @@ Spool::filamentType o-- FilamentType
 +Spool getCurrentSpool()
 +ArrayList<Spool> getCurrentSpools()
 +boolean printFits(Print print)
-+StandardFDM createNewFDMPrinter()
++StandardFDM createNewFDMPrinter(String[] printerValues)
 +String toString()
+}
+
++class HousedPrinter{
++HousedPrinter createNewHousedPrinter(String[] printerValues)
 }
 
 Printer *-- StandardFDM
@@ -169,16 +169,17 @@ Printer *-- StandardFDM
 - ArrayList<Spool> spools
 +void setCurrentSpools((ArrayList<Spool>)
 +ArrayList<Spool> getCurrentSpools()
-+MultiColor createNewMultiColorPrinter()
++MultiColor createNewMultiColorPrinter(String[] printerValues)
 }
 Printer <-- MultiColor
 MultiColor::spools <-- Spool
 
 +class PrinterFactory{
-Printer createNewPrinter(String type)
+Printer createNewPrinter(String type, String[] printerValues)
 }
 PrinterManager::addPrinter --> PrinterFactory
 PrinterFactory --> StandardFDM::createNewFDMPrinter
+PrinterFactory --> HousedPrinter
 PrinterFactory --> MultiColor::createNewMultiColorPrinter
 
 

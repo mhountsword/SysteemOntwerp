@@ -299,7 +299,8 @@ public class Main {
                 int maxY = ((Long) printer.get("maxY")).intValue();
                 int maxZ = ((Long) printer.get("maxZ")).intValue();
                 int maxColors = ((Long) printer.get("maxColors")).intValue();
-                manager.addPrinter(id, type, name, manufacturer, maxX, maxY, maxZ, maxColors);
+                //make new String[]
+                manager.addPrinter(id, type, name, manufacturer, maxX, maxY, maxZ, maxColors); //String[]
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();
