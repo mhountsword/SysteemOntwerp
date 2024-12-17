@@ -1,14 +1,10 @@
 package nl.saxion.newModels;
-
-import nl.saxion.Models.OldPrint;
-import nl.saxion.Models.OldSpool;
-
 import java.util.ArrayList;
 
 public abstract class Printer {
-     private int id;
-    private String name;
-    private String manufacturer;
+     private final int id;
+    private final String name;
+    private final String manufacturer;
     final int maxX;
     final int maxY;
     final int maxZ;

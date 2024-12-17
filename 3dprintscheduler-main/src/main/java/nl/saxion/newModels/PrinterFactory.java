@@ -1,6 +1,5 @@
 package nl.saxion.newModels;
 import java.awt.print.PrinterException;
-
 public class PrinterFactory {
     public Printer addPrinter(String[] values) throws PrinterException {
         Printer result;

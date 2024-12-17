@@ -1,10 +1,8 @@
 package nl.saxion.newModels;
-
 import java.util.ArrayList;
-
 /* Standard cartesian FDM printer */
 public class StandardFDM extends Printer {
-    private boolean housed;
+    private final boolean housed;
     private Spool currentSpool;
 
 
@@ -61,5 +59,9 @@ public class StandardFDM extends Printer {
         append += "--------";
         result = result.replace("--------", append);
         return result;
+    }
+
+    public boolean isHoused() {
+        return housed;
     }
 }
