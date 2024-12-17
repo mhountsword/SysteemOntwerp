@@ -1,14 +1,12 @@
 package nl.saxion.Models;
 
-import java.util.Objects;
-
-public class Spool {
+public class OldSpool {
     private final int id;
     private final String color;
     private final FilamentType filamentType;
     private double length;
 
-    public Spool(int id, String color, FilamentType filamentType, double length) {
+    public OldSpool(int id, String color, FilamentType filamentType, double length) {
         this.id = id;
         this.color = color;
         this.filamentType = filamentType;

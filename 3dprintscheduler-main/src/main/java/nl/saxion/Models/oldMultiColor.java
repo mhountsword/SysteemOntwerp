@@ -5,16 +5,16 @@ import java.util.ArrayList;
 /* Printer capable of printing multiple colors. */
 public class oldMultiColor extends oldStandardFDM {
     private int maxColors;
-    private Spool spool2;
-    private Spool spool3;
-    private Spool spool4;
+    private OldSpool spool2;
+    private OldSpool spool3;
+    private OldSpool spool4;
 
     public oldMultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
         super(id, printerName, manufacturer, maxX, maxY, maxZ);
         this.maxColors = maxColors;
     }
 
-    public void setCurrentSpools(ArrayList<Spool> spools) {
+    public void setCurrentSpools(ArrayList<OldSpool> spools) {
         setCurrentSpool(spools.get(0));
         if(spools.size() > 1) spool2 = spools.get(1);
         if(spools.size() > 2) spool3 = spools.get(2);
@@ -22,8 +22,8 @@ public class oldMultiColor extends oldStandardFDM {
     }
 
     @Override
-    public Spool[] getCurrentSpools() {
-        Spool[] spools = new Spool[4];
+    public OldSpool[] getCurrentSpools() {
+        OldSpool[] spools = new OldSpool[4];
         spools[0] = getCurrentSpool();
         spools[1] = spool2;
         spools[2] = spool3;

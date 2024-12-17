@@ -1,15 +1,14 @@
 package nl.saxion.Models;
 
 import java.util.List;
-import java.util.UUID;
 
 public class PrintTask {
-    private Print print;
+    private OldPrint print;
     private List<String> colors;
     private FilamentType filamentType;
 
 
-    public PrintTask(Print print, List<String> colors, FilamentType filamentType){
+    public PrintTask(OldPrint print, List<String> colors, FilamentType filamentType){
         this.print = print;
         this.colors = colors;
         this.filamentType = filamentType;
@@ -24,7 +23,7 @@ public class PrintTask {
         return filamentType;
     }
 
-    public Print getPrint(){
+    public OldPrint getPrint(){
         return print;
     }
 

@@ -1,7 +1,9 @@
 package nl.saxion.newModels;
 
-import nl.saxion.Models.Print;
-import nl.saxion.Models.Spool;
+import nl.saxion.Models.OldPrint;
+import nl.saxion.Models.OldSpool;
+
+import java.util.ArrayList;
 
 public abstract class Printer {
      private int id;
@@ -20,4 +22,33 @@ public abstract class Printer {
         this.maxZ = Integer.parseInt(values[6]);
 
     }
+
+    public Printer(int id, String name, String manufacturer, int maxX, int maxY, int maxZ, Spool currentSpool) {
+        this.id = id;
+        this.name = name;
+        this.manufacturer = manufacturer;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.maxZ = maxZ;
+        this.currentSpool = currentSpool;
+    }
+
+    public Printer(int id, String name, String manufacturer, int maxX, int maxY, int maxZ) {
+        this.id = id;
+        this.name = name;
+        this.manufacturer = manufacturer;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.maxZ = maxZ;
+    }
+
+    public abstract boolean printFits(Print print);
+
+    public abstract int CalculatePrintTime(String filename);
+
+    public abstract Spool[] getCurrentSpools();
+
+    public abstract void setCurrentSpools(ArrayList<Spool> spools);
+
+
 }

@@ -1,10 +1,4 @@
 package nl.saxion.newModels;
-
-import nl.saxion.Models.MultiColor;
-import nl.saxion.Models.oldMultiColor;
-import nl.saxion.Models.Printer;
-import nl.saxion.Models.StandardFDM;
-
 import java.awt.print.PrinterException;
 
 public class PrinterFactory {

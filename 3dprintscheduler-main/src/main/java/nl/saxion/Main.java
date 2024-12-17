@@ -5,16 +5,13 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import javax.print.DocFlavor;
+
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
     Scanner scanner = new Scanner(System.in);
@@ -108,9 +105,9 @@ public class Main {
 
     // TODO: This should be based on which printer is finished printing.
     private void registerPrintCompletion() {
-        List<Printer> printers = manager.getPrinters();
+        List<OldPrinter> printers = manager.getPrinters();
         System.out.println("---------- Currently Running Printers ----------");
-        for(Printer p: printers) {
+        for(OldPrinter p: printers) {
             PrintTask printerCurrentTask= manager.getPrinterCurrentTask(p);
             if(printerCurrentTask != null) {
                 System.out.println("- " + p.getId() + ": " +p.getName() + " - " + printerCurrentTask);
@@ -123,9 +120,9 @@ public class Main {
     }
 
     private void registerPrinterFailure() {
-        List<Printer> printers = manager.getPrinters();
+        List<OldPrinter> printers = manager.getPrinters();
         System.out.println("---------- Currently Running Printers ----------");
-        for(Printer p: printers) {
+        for(OldPrinter p: printers) {
             PrintTask printerCurrentTask= manager.getPrinterCurrentTask(p);
             if(printerCurrentTask != null) {
                 System.out.println("- " + p.getId() + ": " +p.getName() + " > " + printerCurrentTask);
@@ -144,7 +141,7 @@ public class Main {
         System.out.println("---------- New Print Task ----------");
         System.out.println("---------- Available prints ----------");
         int counter = 1;
-        for (Print p : prints) {
+        for (OldPrint p : prints) {
             System.out.println("- " + counter + ": " + p.getName());
             counter++;
         }
@@ -152,7 +149,7 @@ public class Main {
         System.out.print("- Print number: ");
         int printNumber = numberInput(1, prints.size());
         System.out.println("--------------------------------------");
-        Print print = manager.findPrint(printNumber - 1);
+        OldPrint print = manager.findPrint(printNumber - 1);
         String printName = print.getName();
         System.out.println("---------- Filament Type ----------");
         System.out.println("- 1: PLA");
@@ -180,7 +177,7 @@ public class Main {
         System.out.println("---------- Colors ----------");
         ArrayList<String> availableColors = new ArrayList<>();
         counter = 1;
-        for (Spool spool : spools) {
+        for (OldSpool spool : spools) {
             String colorString = spool.getColor();
             if(type == spool.getFilamentType() && !availableColors.contains(colorString)) {
                 System.out.println("- " + counter + ": " + colorString + " (" + spool.getFilamentType() + ")");
@@ -205,7 +202,7 @@ public class Main {
     private void showPrints() {
         var prints = manager.getPrints();
         System.out.println("---------- Available prints ----------");
-        for (Print p : prints) {
+        for (OldPrint p : prints) {
             System.out.println(p);
         }
         System.out.println("--------------------------------------");
@@ -214,7 +211,7 @@ public class Main {
     private void showSpools() {
         var spools = manager.getSpools();
         System.out.println("---------- Spools ----------");
-        for (Spool spool : spools) {
+        for (OldSpool spool : spools) {
             System.out.println(spool);
         }
         System.out.println("----------------------------");
@@ -223,7 +220,7 @@ public class Main {
     private void showPrinters() {
         var printers = manager.getPrinters();
         System.out.println("--------- Available printers ---------");
-        for (Printer p : printers) {
+        for (OldPrinter p : printers) {
             String output = p.toString();
             PrintTask currentTask = manager.getPrinterCurrentTask(p);
             if(currentTask != null) {
@@ -338,7 +335,7 @@ public class Main {
                         System.out.println("- Not a valid filamentType, bailing out");
                         return;
                 }
-                manager.addSpool(new Spool(id, color, type, length));
+                manager.addSpool(new OldSpool(id, color, type, length));
             }
         } catch (IOException | ParseException e) {
             e.printStackTrace();

@@ -2,11 +2,11 @@ package nl.saxion.Models;
 import java.util.ArrayList;
 
 /* Standard cartesian FDM printer */
-public class oldStandardFDM extends Printer {
+public class oldStandardFDM extends OldPrinter {
     private final int maxX;
     private final int maxY;
     private final int maxZ;
-    private Spool currentSpool;
+    private OldSpool currentSpool;
 
     public oldStandardFDM(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ) {
         super(id, printerName, manufacturer);
@@ -15,20 +15,20 @@ public class oldStandardFDM extends Printer {
         this.maxZ = maxZ;
     }
 
-    public void setCurrentSpools(ArrayList<Spool> spools) {
+    public void setCurrentSpools(ArrayList<OldSpool> spools) {
         this.currentSpool = spools.get(0);
     }
 
-    public void setCurrentSpool(Spool spool) {
+    public void setCurrentSpool(OldSpool spool) {
         this.currentSpool = spool;
     }
 
-    public Spool getCurrentSpool() {
+    public OldSpool getCurrentSpool() {
         return currentSpool;
     }
 
-    public Spool[] getCurrentSpools() {
-        Spool[] spools = new Spool[1];
+    public OldSpool[] getCurrentSpools() {
+        OldSpool[] spools = new OldSpool[1];
         if(currentSpool != null) {
             spools[0] = currentSpool;
         }
@@ -36,7 +36,7 @@ public class oldStandardFDM extends Printer {
     }
 
     @Override
-    public boolean printFits(Print print) {
+    public boolean printFits(OldPrint print) {
         return print.getHeight() <= maxZ && print.getWidth() <= maxX && print.getLength() <= maxY;
     }
 

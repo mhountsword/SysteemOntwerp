@@ -1,36 +1,36 @@
-package nl.saxion.Models;
+package nl.saxion.newModels;
+
 import java.util.ArrayList;
 
 /* Standard cartesian FDM printer */
 public class StandardFDM extends Printer {
     private boolean housed;
-    private final int maxX;
-    private final int maxY;
-    private final int maxZ;
     private Spool currentSpool;
 
+
     public StandardFDM(String[] values) {
-        super(Integer.parseInt(values[0]), values[2], values[4]);
-        this.maxX = Integer.parseInt(values[5]);
-        this.maxY = Integer.parseInt(values[6]);
-        this.maxZ = Integer.parseInt(values[7]);
+        super(values);
         if (values[1].equals("1")){
             this.housed = false;
-        }else this.housed = true;
+        }else this.housed = false;
     }
+
 
     public void setCurrentSpools(ArrayList<Spool> spools) {
         this.currentSpool = spools.get(0);
     }
+
 
     public void setCurrentSpool(Spool spool) {
         this.currentSpool = spool;
     }
 
     public Spool getCurrentSpool() {
-        return currentSpool;
+        return this.currentSpool;
     }
 
+
+//TODO: waarom returnen we een array? Dat is alleen nodig bij multicolor?
     public Spool[] getCurrentSpools() {
         Spool[] spools = new Spool[1];
         if(currentSpool != null) {

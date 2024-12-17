@@ -5,13 +5,13 @@ import nl.saxion.Models.*;
 import java.util.*;
 
 public class PrinterManager {
-    private List<Printer> printers = new ArrayList<Printer>();
-    private List<Print> prints = new ArrayList<Print>();
-    private List<Spool> spools = new ArrayList<Spool>();
-    private List<Spool> freeSpools = new ArrayList<>();
-    private List<Printer> freePrinters = new ArrayList<>();
+    private List<OldPrinter> printers = new ArrayList<OldPrinter>();
+    private List<OldPrint> prints = new ArrayList<OldPrint>();
+    private List<OldSpool> spools = new ArrayList<OldSpool>();
+    private List<OldSpool> freeSpools = new ArrayList<>();
+    private List<OldPrinter> freePrinters = new ArrayList<>();
     private List<PrintTask> pendingPrintTasks = new ArrayList<>();
-    private Map<Printer, PrintTask> runningPrintTasks = new HashMap();
+    private Map<OldPrinter, PrintTask> runningPrintTasks = new HashMap();
 
     public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
         if (printerType == 1) {
@@ -29,12 +29,12 @@ public class PrinterManager {
         }
     }
 
-    public boolean containsSpool(final List<Spool> list, final String name){
+    public boolean containsSpool(final List<OldSpool> list, final String name){
         return list.stream().anyMatch(o -> o.getColor().equals(name));
     }
 
-    public void selectPrintTask(Printer printer) {
-        Spool[] spools = printer.getCurrentSpools();
+    public void selectPrintTask(OldPrinter printer) {
+        OldSpool[] spools = printer.getCurrentSpools();
         PrintTask chosenTask = null;
         // First we look if there's a task that matches the current spool on the printer.
         if(spools[0] != null) {
@@ -81,8 +81,8 @@ public class PrinterManager {
             for(PrintTask printTask: pendingPrintTasks) {
                 if(printer.printFits(printTask.getPrint()) && getPrinterCurrentTask(printer) == null) {
                     if (printer instanceof oldStandardFDM && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() == 1) {
-                        Spool chosenSpool = null;
-                        for (Spool spool : freeSpools) {
+                        OldSpool chosenSpool = null;
+                        for (OldSpool spool : freeSpools) {
                             if (spool.spoolMatch(printTask.getColors().get(0), printTask.getFilamentType())) {
                                 chosenSpool = spool;
                             }
@@ -97,8 +97,8 @@ public class PrinterManager {
                             chosenTask = printTask;
                         }
                     } else if (printer instanceof HousedPrinter && printTask.getColors().size() == 1) {
-                        Spool chosenSpool = null;
-                        for (Spool spool : freeSpools) {
+                        OldSpool chosenSpool = null;
+                        for (OldSpool spool : freeSpools) {
                             if (spool.spoolMatch(printTask.getColors().get(0), printTask.getFilamentType())) {
                                 chosenSpool = spool;
                             }
@@ -113,9 +113,9 @@ public class PrinterManager {
                             chosenTask = printTask;
                         }
                     } else if (printer instanceof oldMultiColor && printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() <= ((oldMultiColor) printer).getMaxColors()) {
-                        ArrayList<Spool> chosenSpools = new ArrayList<>();
+                        ArrayList<OldSpool> chosenSpools = new ArrayList<>();
                         for (int i = 0; i < printTask.getColors().size(); i++) {
-                            for (Spool spool : freeSpools) {
+                            for (OldSpool spool : freeSpools) {
                                 if (spool.spoolMatch(printTask.getColors().get(i), printTask.getFilamentType()) && !containsSpool(chosenSpools, printTask.getColors().get(i))) {
                                     chosenSpools.add(spool);
                                 }
@@ -124,12 +124,12 @@ public class PrinterManager {
                         // We assume that if they are the same length that there is a match.
                         if (chosenSpools.size() == printTask.getColors().size()) {
                             runningPrintTasks.put(printer, printTask);
-                            for (Spool spool : printer.getCurrentSpools()) {
+                            for (OldSpool spool : printer.getCurrentSpools()) {
                                 freeSpools.add(spool);
                             }
                             printer.setCurrentSpools(chosenSpools);
                             int position = 1;
-                            for (Spool spool : chosenSpools) {
+                            for (OldSpool spool : chosenSpools) {
                                 System.out.println("- Spool change: Please place spool " + spool.getId() + " in printer " + printer.getName() + " position " + position);
                                 freeSpools.remove(spool);
                                 position++;
@@ -148,25 +148,25 @@ public class PrinterManager {
     }
 
     public void startInitialQueue() {
-        for(Printer printer: printers) {
+        for(OldPrinter printer: printers) {
             selectPrintTask(printer);
         }
     }
 
     public void addPrint(String name, int height, int width, int length, ArrayList<Double> filamentLength, int printTime) {
-        Print p = new Print(name, height, width, length, filamentLength, printTime);
+        OldPrint p = new OldPrint(name, height, width, length, filamentLength, printTime);
         prints.add(p);
     }
 
-    public List<Print> getPrints() {
+    public List<OldPrint> getPrints() {
         return prints;
     }
 
-    public List<Printer> getPrinters() {
+    public List<OldPrinter> getPrinters() {
         return printers;
     }
 
-    public PrintTask getPrinterCurrentTask(Printer printer) {
+    public PrintTask getPrinterCurrentTask(OldPrinter printer) {
         if(!runningPrintTasks.containsKey(printer)) {
             return null;
         }
@@ -176,7 +176,7 @@ public class PrinterManager {
     public List<PrintTask> getPendingPrintTasks() {return pendingPrintTasks; }
 
     public void addPrintTask(String printName, List<String> colors, FilamentType type) {
-        Print print = findPrint(printName);
+        OldPrint print = findPrint(printName);
         if (print == null) {
             printError("Could not find print with name " + printName);
             return;
@@ -187,7 +187,7 @@ public class PrinterManager {
         }
         for (String color : colors) {
             boolean found = false;
-            for (Spool spool : spools) {
+            for (OldSpool spool : spools) {
                 if (spool.getColor().equals(color) && spool.getFilamentType() == type) {
                     found = true;
                     break;
@@ -205,8 +205,8 @@ public class PrinterManager {
 
     }
 
-    public Print findPrint(String printName) {
-        for (Print p : prints) {
+    public OldPrint findPrint(String printName) {
+        for (OldPrint p : prints) {
             if (p.getName().equals(printName)) {
                 return p;
             }
@@ -214,24 +214,24 @@ public class PrinterManager {
         return null;
     }
 
-    public Print findPrint(int index) {
+    public OldPrint findPrint(int index) {
         if(index > prints.size() -1) {
             return null;
         }
         return prints.get(index);
     }
 
-    public void addSpool(Spool spool) {
+    public void addSpool(OldSpool spool) {
         spools.add(spool);
         freeSpools.add(spool);
     }
 
-    public List<Spool> getSpools() {
+    public List<OldSpool> getSpools() {
         return spools;
     }
 
-    public Spool getSpoolByID(int id) {
-        for(Spool s: spools) {
+    public OldSpool getSpoolByID(int id) {
+        for(OldSpool s: spools) {
             if(s.getId() == id) {
                 return s;
             }
@@ -240,8 +240,8 @@ public class PrinterManager {
     }
 
     public void registerPrinterFailure(int printerId) {
-        Map.Entry<Printer, PrintTask> foundEntry = null;
-        for (Map.Entry<Printer, PrintTask> entry : runningPrintTasks.entrySet()) {
+        Map.Entry<OldPrinter, PrintTask> foundEntry = null;
+        for (Map.Entry<OldPrinter, PrintTask> entry : runningPrintTasks.entrySet()) {
             if (entry.getKey().getId() == printerId) {
                 foundEntry = entry;
                 break;
@@ -258,8 +258,8 @@ public class PrinterManager {
         System.out.println("Task " + task + " removed from printer "
                 + foundEntry.getKey().getName());
 
-        Printer printer = foundEntry.getKey();
-        Spool[] spools = printer.getCurrentSpools();
+        OldPrinter printer = foundEntry.getKey();
+        OldSpool[] spools = printer.getCurrentSpools();
         for(int i=0; i<spools.length && i < task.getColors().size();i++) {
             spools[i].reduceLength(task.getPrint().getFilamentLength().get(i));
         }
@@ -267,8 +267,8 @@ public class PrinterManager {
     }
 
     public void registerCompletion(int printerId) {
-        Map.Entry<Printer, PrintTask> foundEntry = null;
-        for (Map.Entry<Printer, PrintTask> entry : runningPrintTasks.entrySet()) {
+        Map.Entry<OldPrinter, PrintTask> foundEntry = null;
+        for (Map.Entry<OldPrinter, PrintTask> entry : runningPrintTasks.entrySet()) {
             if (entry.getKey().getId() == printerId) {
                 foundEntry = entry;
                 break;
@@ -284,8 +284,8 @@ public class PrinterManager {
         System.out.println("Task " + task + " removed from printer "
                 + foundEntry.getKey().getName());
 
-        Printer printer = foundEntry.getKey();
-        Spool[] spools = printer.getCurrentSpools();
+        OldPrinter printer = foundEntry.getKey();
+        OldSpool[] spools = printer.getCurrentSpools();
         for(int i=0; i<spools.length && i < task.getColors().size();i++) {
             spools[i].reduceLength(task.getPrint().getFilamentLength().get(i));
         }

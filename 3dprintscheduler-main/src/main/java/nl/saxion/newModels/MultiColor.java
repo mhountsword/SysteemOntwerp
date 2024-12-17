@@ -1,4 +1,4 @@
-package nl.saxion.Models;
+package nl.saxion.newModels;
 
 import java.util.ArrayList;
 
@@ -10,9 +10,8 @@ public class MultiColor extends Printer {
     private Spool spool4;
 
     public MultiColor(String[] values) {
-        super(Integer.parseInt(values[0]), values[2], values[4]);
+        super(values);
         this.maxColors = Integer.parseInt(values[8]);
-
     }
 
     @Override
@@ -32,6 +31,6 @@ public class MultiColor extends Printer {
 
     @Override
     public boolean printFits(Print print) {
-        return false;
+        return print.getHeight() <= maxZ && print.getWidth() <= maxX && print.getLength() <= maxY;
     }
 }
