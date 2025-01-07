@@ -1,9 +1,9 @@
 package nl.saxion.newModels;
 import java.util.ArrayList;
-
 public abstract class Printer {
      private final int id;
     private final String name;
+
     private final String manufacturer;
     final int maxX;
     final int maxY;
@@ -12,10 +12,10 @@ public abstract class Printer {
     public Printer(String[] values){
         this.id = Integer.parseInt(values[0]);
         this.name = values[2];
-        this.manufacturer = values[3];
-        this.maxX = Integer.parseInt(values[4]);
-        this.maxY = Integer.parseInt(values[5]);
-        this.maxZ = Integer.parseInt(values[6]);
+        this.manufacturer = values[4];
+        this.maxX = Integer.parseInt(values[5]);
+        this.maxY = Integer.parseInt(values[6]);
+        this.maxZ = Integer.parseInt(values[7]);
 
     }
 
@@ -43,5 +43,11 @@ public abstract class Printer {
     public abstract Spool[] getCurrentSpools();
     public abstract void setCurrentSpools(ArrayList<Spool> spools);
 
-
+    @Override
+    public String toString() {
+        return "printer: " + id +"\n "+
+                "name: " + name +"\n "+
+                "manufacturer: " + manufacturer +"\n "+
+                "max dimensions: " + maxX+ ","+ maxY + "," + maxZ +" \n";
+    }
 }
