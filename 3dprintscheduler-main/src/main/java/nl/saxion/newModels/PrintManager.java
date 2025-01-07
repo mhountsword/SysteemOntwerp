@@ -17,6 +17,7 @@ public class PrintManager {
         }
         return null;
     }
+
 //TODO: nog geen id in printveld. moet er op een andere int gezocht worden?
 //    public Print findPrint(int id){
 //        for (Print print : prints) {

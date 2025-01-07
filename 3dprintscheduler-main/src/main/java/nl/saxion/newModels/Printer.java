@@ -39,11 +39,8 @@ public abstract class Printer {
     }
 
     public abstract boolean printFits(Print print);
-
     public abstract int CalculatePrintTime(String filename);
-
     public abstract Spool[] getCurrentSpools();
-
     public abstract void setCurrentSpools(ArrayList<Spool> spools);
 
 

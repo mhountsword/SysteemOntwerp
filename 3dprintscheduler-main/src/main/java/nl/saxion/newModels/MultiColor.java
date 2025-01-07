@@ -24,7 +24,10 @@ public class MultiColor extends Printer {
 
     @Override
     public void setCurrentSpools(ArrayList<Spool> spools) {
-
+        super.currentSpool = spools.get(0);
+        if(spools.size() > 1) spool2 = spools.get(1);
+        if(spools.size() > 2) spool3 = spools.get(2);
+        if(spools.size() > 3) spool4 = spools.get(3);
     }
 
     @Override
