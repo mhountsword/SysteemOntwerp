@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 public class Reader {
     Scanner scanner;
-
-
     public ArrayList<Spool> readSpoolsFromFile(String filename) throws FileNotFoundException {
         ArrayList<Spool> result = new ArrayList<>();
         scanner = new Scanner(new File(filename));

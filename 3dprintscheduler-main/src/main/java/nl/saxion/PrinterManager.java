@@ -1,9 +1,6 @@
 package nl.saxion;
-
 import nl.saxion.Models.*;
-
 import java.util.*;
-
 public class PrinterManager {
     private List<OldPrinter> printers = new ArrayList<OldPrinter>();
     private List<OldPrint> prints = new ArrayList<OldPrint>();
@@ -11,7 +8,7 @@ public class PrinterManager {
     private List<OldSpool> freeSpools = new ArrayList<>();
     private List<OldPrinter> freePrinters = new ArrayList<>();
     private List<PrintTask> pendingPrintTasks = new ArrayList<>();
-    private Map<OldPrinter, PrintTask> runningPrintTasks = new HashMap();
+    private Map<OldPrinter, PrintTask> runningPrintTasks = new HashMap<>();
 
     public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
         if (printerType == 1) {
@@ -202,7 +199,6 @@ public class PrinterManager {
         PrintTask task = new PrintTask(print, colors, type);
         pendingPrintTasks.add(task);
         System.out.println("Added task to queue");
-
     }
 
     public OldPrint findPrint(String printName) {
