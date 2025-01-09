@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 /* Printer capable of printing multiple colors. */
 public class MultiColor extends StandardFDM {
-    private int maxColors;
+    private final int maxColors;
     private Spool spool2;
     private Spool spool3;
     private Spool spool4;

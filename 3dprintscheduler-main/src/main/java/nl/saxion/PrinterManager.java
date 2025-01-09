@@ -18,6 +18,7 @@ public class PrinterManager {
     private Map<Printer, PrintTask> runningPrintTasks = new HashMap();
 
     public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) { //receive String[]
+        //TODO
         //all of this should be able to go
         //replace with printerfactory
         if (printerType == 1) {
@@ -130,9 +131,7 @@ public class PrinterManager {
                         // We assume that if they are the same length that there is a match.
                         if (chosenSpools.size() == printTask.getColors().size()) {
                             runningPrintTasks.put(printer, printTask);
-                            for (Spool spool : printer.getCurrentSpools()) {
-                                freeSpools.add(spool);
-                            }
+                            freeSpools.addAll(Arrays.asList(printer.getCurrentSpools()));
                             printer.setCurrentSpools(chosenSpools);
                             int position = 1;
                             for (Spool spool : chosenSpools) {
@@ -187,7 +186,7 @@ public class PrinterManager {
             printError("Could not find print with name " + printName);
             return;
         }
-        if (colors.size() == 0) {
+        if (colors.isEmpty()) {
             printError("Need at least one color, but none given");
             return;
         }
