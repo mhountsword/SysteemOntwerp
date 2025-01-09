@@ -1,7 +1,10 @@
 package nl.saxion;
 
-import nl.saxion.Models.*;
 import nl.saxion.Models.printers.*;
+import nl.saxion.Models.spools.FilamentType;
+import nl.saxion.Models.prints.Print;
+import nl.saxion.Models.prints.PrintTask;
+import nl.saxion.Models.spools.Spool;
 import nl.saxion.Models.utils.Reader;
 import java.util.*;
 

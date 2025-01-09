@@ -1,11 +1,11 @@
 package nl.saxion.Models.utils;
 
-import nl.saxion.Models.FilamentType;
-import nl.saxion.Models.Print;
+import nl.saxion.Models.spools.FilamentType;
+import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.printers.HousedPrinter;
 import nl.saxion.Models.printers.MultiColor;
 import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.Spool;
+import nl.saxion.Models.spools.Spool;
 import nl.saxion.Models.printers.StandardFDM;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;

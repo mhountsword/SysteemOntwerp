@@ -1,6 +1,4 @@
-package nl.saxion.Models;
-
-import java.util.Objects;
+package nl.saxion.Models.spools;
 
 public class Spool {
     private final int id;

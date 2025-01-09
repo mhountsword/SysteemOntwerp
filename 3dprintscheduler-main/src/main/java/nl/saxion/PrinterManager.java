@@ -1,10 +1,13 @@
 package nl.saxion;
 
-import nl.saxion.Models.*;
 import nl.saxion.Models.printers.HousedPrinter;
 import nl.saxion.Models.printers.MultiColor;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.printers.StandardFDM;
+import nl.saxion.Models.spools.FilamentType;
+import nl.saxion.Models.prints.Print;
+import nl.saxion.Models.prints.PrintTask;
+import nl.saxion.Models.spools.Spool;
 
 import java.util.*;
 

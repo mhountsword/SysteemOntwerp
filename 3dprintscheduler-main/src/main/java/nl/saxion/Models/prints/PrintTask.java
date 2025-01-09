@@ -1,7 +1,8 @@
-package nl.saxion.Models;
+package nl.saxion.Models.prints;
+
+import nl.saxion.Models.spools.FilamentType;
 
 import java.util.List;
-import java.util.UUID;
 
 public class PrintTask {
     private Print print;
