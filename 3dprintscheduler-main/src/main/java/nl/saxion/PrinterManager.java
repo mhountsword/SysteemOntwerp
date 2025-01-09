@@ -1,7 +1,10 @@
 package nl.saxion;
 
 import nl.saxion.Models.*;
-import org.json.simple.JSONArray;
+import nl.saxion.Models.printers.HousedPrinter;
+import nl.saxion.Models.printers.MultiColor;
+import nl.saxion.Models.printers.Printer;
+import nl.saxion.Models.printers.StandardFDM;
 
 import java.util.*;
 

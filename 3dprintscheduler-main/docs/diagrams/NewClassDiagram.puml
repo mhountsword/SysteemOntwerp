@@ -18,12 +18,27 @@ class Main {
 +void showPrinters()
 }
 
+interface FileReader {
+    +ArrayList<Print> readPrints(String)
+    +ArrayList<Printers> readPrinters(String)
+    +ArrayList<Spools> readSpools(String)
+}
+
+class CSVtoJSONAdapter implements FileReader {
+    +ArrayList<Print> readPrints(String)
+    +ArrayList<Printers> readPrinters(String)
+    +ArrayList<Spools> readSpools(String)
+}
+
 class Reader {
 -Scanner scanner
 +ArrayList<Print> readPrintsFromFile(String)
 +ArrayList<Printers> readPrintersFromFile(String)
 +ArrayList<Spools> readSpoolsFromFile(String)
+-FileReader fileReader
 }
+
+Reader::fileReader *-- CSVtoJSONAdapter
 
 Main::menuChoice *.. Facade
 Main::initialize *.. Reader
@@ -140,9 +155,9 @@ Printer::currentSpool *-- Spool
 - final int id;
 - final String color;
 - final FilamentType filamentType;
--double lenght;
+-double length;
 +int getId()
-+double getlength()
++double getLength()
 +String getColor()
 +FilamentType getFilamentType()
 + boolean spoolMatch()
@@ -179,7 +194,5 @@ Printer createNewPrinter(String type, String[] printerValues)
 PrinterManager::addPrinter --> PrinterFactory
 PrinterFactory --> StandardFDM::createNewFDMPrinter
 PrinterFactory --> MultiColor::createNewMultiColorPrinter
-
-
 
 @enduml

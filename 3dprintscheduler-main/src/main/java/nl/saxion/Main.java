@@ -1,20 +1,19 @@
 package nl.saxion;
 
 import nl.saxion.Models.*;
+import nl.saxion.Models.printers.Printer;
+import nl.saxion.Models.utils.Reader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import javax.print.DocFlavor;
+
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
     Scanner scanner = new Scanner(System.in);
@@ -27,15 +26,8 @@ public class Main {
     }
 
     public void run(String[] args) {
-        if(args.length > 0) {
-            readPrintsFromFile(args[0]);
-            readSpoolsFromFile(args[1]);
-            readPrintersFromFile(args[2]);
-        } else {
-            readPrintsFromFile("");
-            readSpoolsFromFile("");
-            readPrintersFromFile("");
-        }
+        initialize();
+
         int choice = 1;
         while (choice > 0 && choice < 10) {
             menu();
@@ -62,6 +54,30 @@ public class Main {
             }
         }
         exit();
+    }
+
+    private void initialize() {
+        Reader fileReader = new Reader();
+        ArrayList<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
+        ArrayList<Print> prints = fileReader.readPrintsFromFile("prints.json");
+        ArrayList<Printer> printers = fileReader.readPrintersFromFile("printers.json");
+
+        for(Spool spool: spools) {
+            manager.addSpool(spool);
+        }
+
+        for(Print print: prints) {
+            manager.addPrint(print.getName(), print.getHeight(), print.getWidth(), print.getLength(), print.getFilamentLength(), print.getPrintTime());
+        }
+
+        //TODO: figure this out
+//        for(Printer printer: printers) {
+//            manager.addPrinter(printer.getId(), printer.get)
+//        }
+
+        readPrintsFromFile("");
+        readSpoolsFromFile("");
+        readPrintersFromFile("");
     }
 
     public void menu() {
@@ -263,7 +279,6 @@ public class Main {
                 int height = ((Long) print.get("height")).intValue();
                 int width = ((Long) print.get("width")).intValue();
                 int length = ((Long) print.get("length")).intValue();
-                //int filamentLength = ((Long) print.get("filamentLength")).intValue();
                 JSONArray fLength = (JSONArray) print.get("filamentLength");
                 int printTime = ((Long) print.get("printTime")).intValue();
                 ArrayList<Double> filamentLength = new ArrayList();
@@ -299,7 +314,7 @@ public class Main {
                 int maxY = ((Long) printer.get("maxY")).intValue();
                 int maxZ = ((Long) printer.get("maxZ")).intValue();
                 int maxColors = ((Long) printer.get("maxColors")).intValue();
-                //make new String[]
+                //TODO: make new String[]
                 manager.addPrinter(id, type, name, manufacturer, maxX, maxY, maxZ, maxColors); //String[]
             }
         } catch (IOException | ParseException e) {

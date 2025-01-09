@@ -35,7 +35,7 @@ public class Print {
         return name;
     }
 
-    public double getLength() {
+    public int getLength() {
         return length;
     }
 
@@ -45,6 +45,10 @@ public class Print {
 
     public int getWidth() {
         return width;
+    }
+
+    public int getPrintTime() {
+        return printTime;
     }
 
     public ArrayList<Double> getFilamentLength() {

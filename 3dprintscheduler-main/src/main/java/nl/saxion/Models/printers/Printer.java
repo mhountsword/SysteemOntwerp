@@ -1,4 +1,7 @@
-package nl.saxion.Models;
+package nl.saxion.Models.printers;
+
+import nl.saxion.Models.Print;
+import nl.saxion.Models.Spool;
 
 import java.util.ArrayList;
 
@@ -13,9 +16,6 @@ public abstract class Printer {
         this.manufacturer = manufacturer;
     }
 
-    public int getId() {
-        return id;
-    }
 
     public abstract int CalculatePrintTime(String filename);
 
@@ -36,5 +36,11 @@ public abstract class Printer {
 
     public String getName(){
         return name;
+    }
+    public String getManufacturer(){
+        return manufacturer;
+    }
+    public int getId() {
+        return id;
     }
 }
