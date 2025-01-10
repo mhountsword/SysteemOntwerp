@@ -162,8 +162,9 @@ public class PrinterManager {
         }
     }
 
-    public void addPrint(String name, int height, int width, int length, ArrayList<Double> filamentLength, int printTime) {
-        Print p = new Print(name, height, width, length, filamentLength, printTime);
+    public void addPrint(Print print) {
+
+        Print p = new Print(print.getName(), print.getHeight(), print.getWidth(), print.getLength(), print.getFilamentLength(), print.getPrintTime());
         prints.add(p);
     }
 
