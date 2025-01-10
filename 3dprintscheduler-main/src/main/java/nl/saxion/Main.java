@@ -61,7 +61,7 @@ public class Main {
 
         //TODO: these long parameters need to go & initialize in addPrint, addPrinter, etc
         for(Print print: prints) {
-            manager.addPrint(print.getName(), print.getHeight(), print.getWidth(), print.getLength(), print.getFilamentLength(), print.getPrintTime());
+            manager.addPrint(print);
         }
 
         //TODO: this can be cleaner
