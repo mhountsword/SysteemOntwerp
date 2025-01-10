@@ -25,11 +25,12 @@ public class PrinterManager {
         //all of this should be able to go
         //replace with printerfactory
         if (printerType == 1) {
-            StandardFDM printer = new StandardFDM(id, printerName, manufacturer, maxX, maxY, maxZ); //forward to printerfactory
+            StandardFDM printer = new StandardFDM(id, printerName, manufacturer, maxX, maxY, maxZ,true); //forward to printerfactory
             printers.add(printer);
             freePrinters.add(printer);
         } else if (printerType == 2) {
-            HousedPrinter printer = new HousedPrinter(id, printerName, manufacturer, maxX, maxY, maxZ);
+            StandardFDM printer = new StandardFDM(id, printerName, manufacturer, maxX, maxY, maxZ,false); //forward to printerfactory
+//            HousedPrinter printer = new HousedPrinter(id, printerName, manufacturer, maxX, maxY, maxZ);
             printers.add(printer);
             freePrinters.add(printer);
         } else if (printerType == 3) {

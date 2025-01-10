@@ -1,4 +1,5 @@
 package nl.saxion.Models.printers;
+
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.spools.Spool;
 
@@ -6,16 +7,19 @@ import java.util.ArrayList;
 
 /* Standard cartesian FDM printer */
 public class StandardFDM extends Printer {
-    private final int maxX;
-    private final int maxY;
-    private final int maxZ;
+    private boolean housed;
     private Spool currentSpool;
 
-    public StandardFDM(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ) {
+    public StandardFDM(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, boolean housed) {
         super(id, printerName, manufacturer, maxX, maxY, maxZ);
-        this.maxX = maxX;
-        this.maxY = maxY;
-        this.maxZ = maxZ;
+        this.housed = housed;
+
+    }
+    public StandardFDM(String[] values) {
+        super(values);
+        if (values[1].equals("2")) {
+            this.housed = true;
+        } else this.housed = false;
     }
 
     public void setCurrentSpools(ArrayList<Spool> spools) {
@@ -26,13 +30,17 @@ public class StandardFDM extends Printer {
         this.currentSpool = spool;
     }
 
+    public boolean isHoused() {
+        return housed;
+    }
+
     public Spool getCurrentSpool() {
         return currentSpool;
     }
 
     public Spool[] getCurrentSpools() {
         Spool[] spools = new Spool[1];
-        if(currentSpool != null) {
+        if (currentSpool != null) {
             spools[0] = currentSpool;
         }
         return spools;
@@ -40,7 +48,7 @@ public class StandardFDM extends Printer {
 
     @Override
     public boolean printFits(Print print) {
-        return print.getHeight() <= maxZ && print.getWidth() <= maxX && print.getLength() <= maxY;
+        return print.getHeight() <= getMaxZ() && print.getWidth() <= getMaxX() && print.getLength() <= getMaxY();
     }
 
     @Override
@@ -51,11 +59,11 @@ public class StandardFDM extends Printer {
     @Override
     public String toString() {
         String result = super.toString();
-        String append = "- maxX: " + maxX + System.lineSeparator() +
-                "- maxY: " + maxY + System.lineSeparator() +
-                "- maxZ: " + maxZ + System.lineSeparator();
+        String append = "- maxX: " + getMaxX() + System.lineSeparator() +
+                "- maxY: " + getMaxY() + System.lineSeparator() +
+                "- maxZ: " + getMaxZ() + System.lineSeparator();
         if (currentSpool != null) {
-            append += "- Spool(s): " + currentSpool.getId()+ System.lineSeparator();
+            append += "- Spool(s): " + currentSpool.getId() + System.lineSeparator();
         }
         append += "--------";
         result = result.replace("--------", append);
