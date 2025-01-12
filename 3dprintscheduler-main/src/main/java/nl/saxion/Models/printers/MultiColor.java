@@ -11,8 +11,8 @@ public class MultiColor extends StandardFDM {
     private Spool spool3;
     private Spool spool4;
 
-    public MultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
-        super(id, printerName, manufacturer, maxX, maxY, maxZ);
+    public MultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors, boolean housed) {
+        super(id, printerName, manufacturer, maxX, maxY, maxZ, housed);
         this.maxColors = maxColors;
     }
 
