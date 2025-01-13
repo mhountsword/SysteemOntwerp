@@ -1,22 +1,139 @@
 package nl.saxion;
 
-import nl.saxion.Models.printers.Printer;
+import nl.saxion.Models.printers.*;
+import nl.saxion.Models.spools.FilamentType;
+import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.prints.PrintTask;
+import nl.saxion.Models.spools.Spool;
+import nl.saxion.Models.utils.Reader;
+import nl.saxion.exceptions.PrintError;
+
+import java.util.*;
 
 public class Facade {
-    void addTask(PrintTask task) {
+    private final PrinterManager manager = new PrinterManager();
+    private String printStrategy = "Less Spool Changes";
+    public void initialize() {
+        Reader fileReader = new Reader();
+        ArrayList<Print> prints = fileReader.readPrintsFromFile("prints.json");
+        ArrayList<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
+        ArrayList<Printer> printers = fileReader.readPrintersFromFile("printers.json");
 
+        for (Spool spool : spools) {
+            manager.addSpool(spool);
+        }
+
+        for (Print print : prints) {
+            manager.addPrint(print);
+        }
+
+        for (Printer printer : printers) {
+            int maxColors = 1;
+            if (printer instanceof MultiColor) {
+                maxColors = ((MultiColor) printer).getMaxColors();
+            }
+            manager.addPrinter(printer.getId(), getPrinterType(printer), printer.getName(),
+                    printer.getManufacturer(), printer.getMaxX(), printer.getMaxY(), printer.getMaxZ(), maxColors);
+        }
     }
 
-    void assignTasks(PrinterManager printerManager) {
-
+    public void changePrintStrategy(int strategyChoice) {
+        if (strategyChoice == 1) {
+            printStrategy = "Less Spool Changes";
+        } else if (strategyChoice == 2) {
+            printStrategy = "Efficient Spool Usage";
+        }
     }
 
-    void completeTask(Printer printer) {
+    public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
+        Print print = manager.findPrint(printName);
+        if (print == null) {
+            throw new PrintError("Could not find print with name " + printName);
+        }
+        if (colors.isEmpty()) {
+            throw new PrintError("Need at least one color, but none given");
+        }
+        for (String color : colors) {
+            boolean found = false;
+            for (Spool spool : manager.getSpools()) {
+                if (spool.getColor().equals(color) && spool.getFilamentType() == filamentType) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new PrintError("Color " + color + " (" + filamentType +") not found");
+            }
+        }
 
+        PrintTask task = new PrintTask(print, colors, filamentType);
+        manager.addPendingPrintTask(task);
+        System.out.println("Added task to queue");
     }
 
-    void handleTaskFailure(Printer printer) {
 
+
+    public void registerPrintCompletion(int printerId) throws PrintError {
+        Map.Entry<Printer, PrintTask> foundEntry = null;
+        for (Map.Entry<Printer, PrintTask> entry : manager.getAllRunningTasks().entrySet()) {
+            if (entry.getKey().getId() == printerId) {
+                foundEntry = entry;
+                break;
+            }
+        }
+        if (foundEntry == null) {
+            throw new PrintError("cannot find a running task on printer with ID " + printerId);
+        }
+        PrintTask task = foundEntry.getValue();
+        removeTask(foundEntry, task);
+    }
+
+    private void removeTask(Map.Entry<Printer, PrintTask> foundEntry, PrintTask task) {
+        manager.getAllRunningTasks().remove(foundEntry.getKey());
+        System.out.println("Task " + task + " removed from printer " + foundEntry.getKey().getName());
+        Printer printer = foundEntry.getKey();
+        Spool[] spools = printer.getCurrentSpools();
+
+        for(int i=0; i<spools.length && i < task.getColors().size();i++) {
+            spools[i].reduceLength(task.getPrint().getFilamentLength().get(i));
+        }
+        manager.selectPrintTask(printer);
+    }
+
+    public void startPrintQueue() {
+        manager.startInitialQueue();
+    }
+
+    public List<Printer> getPrinters() {
+        return manager.getPrinters();
+    }
+
+    public List<Print> getPrints() {
+        return manager.getPrints();
+    }
+
+    public List<Spool> getSpools() {
+        return manager.getSpools();
+    }
+
+    public PrintTask getPrinterCurrentTask(Printer printer) {
+        return manager.getPrinterCurrentTask(printer);
+    }
+
+    public List<PrintTask> getPendingPrintTasks() {
+        return manager.getPendingPrintTasks();
+    }
+
+    public String getCurrentStrategy() {
+        return printStrategy;
+    }
+
+    private int getPrinterType(Printer printer) {
+        return switch (printer) {
+            case HousedPrinter housedPrinter -> 2;
+            case MultiColor multiColor -> 3;
+            case StandardFDM standardFDM -> 1;
+            default -> -1;
+        };
     }
 }

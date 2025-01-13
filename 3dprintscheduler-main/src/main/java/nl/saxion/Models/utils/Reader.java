@@ -107,10 +107,10 @@ public class Reader implements FileReader {
     private Printer createPrinterByType(int type, int id, String name, String manufacturer, int maxX, int maxY, int maxZ, JSONObject printerJson) {
         return switch (type) {
             case STANDARD_FDM_TYPE -> new StandardFDM(id, name, manufacturer, maxX, maxY, maxZ, false);
-            case HOUSED_PRINTER_TYPE -> new HousedPrinter(id, name, manufacturer, maxX, maxY, maxZ);
+            case HOUSED_PRINTER_TYPE -> new HousedPrinter(id, name, manufacturer, maxX, maxY, maxZ, true);
             default -> {
                 int maxColors = parseInt(printerJson.get("maxColors"));
-                yield new MultiColor(id, name, manufacturer, maxX, maxY, maxZ, maxColors);
+                yield new MultiColor(id, name, manufacturer, maxX, maxY, maxZ, maxColors, false);
             }
         };
     }

@@ -17,9 +17,7 @@ public class StandardFDM extends Printer {
     }
     public StandardFDM(String[] values) {
         super(values);
-        if (values[1].equals("2")) {
-            this.housed = true;
-        } else this.housed = false;
+        this.housed = values[1].equals("2");
     }
 
     public void setCurrentSpools(ArrayList<Spool> spools) {
