@@ -19,8 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Reader implements FileReader {
-    private static final int STANDARD_FDM_TYPE = 1;
-    private static final int HOUSED_PRINTER_TYPE = 2;
+    private static PrinterFactory printerFactory = new PrinterFactory();
 
     public ArrayList<Print> readPrintsFromFile(String filePath) {
         JSONParser jsonParser = new JSONParser();
@@ -98,21 +97,11 @@ public class Reader implements FileReader {
         int maxX = parseInt(printerJson.get("maxX"));
         int maxY = parseInt(printerJson.get("maxY"));
         int maxZ = parseInt(printerJson.get("maxZ"));
+        int maxColors = parseInt(printerJson.get("maxColors"));
 
         // Delegate printer creation based on type.
         int type = parseInt(printerJson.get("type"));
-        return createPrinterByType(type, id, name, manufacturer, maxX, maxY, maxZ, printerJson);
-    }
-
-    private Printer createPrinterByType(int type, int id, String name, String manufacturer, int maxX, int maxY, int maxZ, JSONObject printerJson) {
-        return switch (type) {
-            case STANDARD_FDM_TYPE -> new StandardFDM(id, name, manufacturer, maxX, maxY, maxZ, false);
-            case HOUSED_PRINTER_TYPE -> new HousedPrinter(id, name, manufacturer, maxX, maxY, maxZ, true);
-            default -> {
-                int maxColors = parseInt(printerJson.get("maxColors"));
-                yield new MultiColor(id, name, manufacturer, maxX, maxY, maxZ, maxColors, false);
-            }
-        };
+        return printerFactory.createPrinterByType(type, id, name, manufacturer, maxX, maxY, maxZ, maxColors);
     }
 
     private Print parsePrint(JSONObject p) {

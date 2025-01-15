@@ -8,8 +8,6 @@ import java.util.ArrayList;
 /* Standard cartesian FDM printer */
 public class StandardFDM extends Printer {
     private boolean housed;
-    private Spool currentSpool;
-
     public StandardFDM(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, boolean housed) {
         super(id, printerName, manufacturer, maxX, maxY, maxZ);
         this.housed = housed;
@@ -21,27 +19,15 @@ public class StandardFDM extends Printer {
     }
 
     public void setCurrentSpools(ArrayList<Spool> spools) {
-        this.currentSpool = spools.get(0);
+        setCurrentSpool(spools.get(0));
     }
-
-    public void setCurrentSpool(Spool spool) {
-        this.currentSpool = spool;
+    @Override
+    public Spool[] getCurrentSpools() {
+        return new Spool[0];
     }
 
     public boolean isHoused() {
         return housed;
-    }
-
-    public Spool getCurrentSpool() {
-        return currentSpool;
-    }
-
-    public Spool[] getCurrentSpools() {
-        Spool[] spools = new Spool[1];
-        if (currentSpool != null) {
-            spools[0] = currentSpool;
-        }
-        return spools;
     }
 
     @Override
@@ -60,8 +46,8 @@ public class StandardFDM extends Printer {
         String append = "- maxX: " + getMaxX() + System.lineSeparator() +
                 "- maxY: " + getMaxY() + System.lineSeparator() +
                 "- maxZ: " + getMaxZ() + System.lineSeparator();
-        if (currentSpool != null) {
-            append += "- Spool(s): " + currentSpool.getId() + System.lineSeparator();
+        if (getCurrentSpool() != null) {
+            append += "- Spool(s): " + getCurrentSpool().getId() + System.lineSeparator();
         }
         append += "--------";
         result = result.replace("--------", append);

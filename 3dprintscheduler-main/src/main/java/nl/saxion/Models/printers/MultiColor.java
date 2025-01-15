@@ -1,26 +1,20 @@
 package nl.saxion.Models.printers;
 
+import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.spools.Spool;
 
 import java.util.ArrayList;
 
 /* Printer capable of printing multiple colors. */
-public class MultiColor extends StandardFDM {
+public class MultiColor extends Printer {
     private final int maxColors;
     private Spool spool2;
     private Spool spool3;
     private Spool spool4;
 
-    public MultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors, boolean housed) {
-        super(id, printerName, manufacturer, maxX, maxY, maxZ, housed);
+    public MultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
+        super(id, printerName, manufacturer, maxX, maxY, maxZ);
         this.maxColors = maxColors;
-    }
-
-    public void setCurrentSpools(ArrayList<Spool> spools) {
-        setCurrentSpool(spools.get(0));
-        if(spools.size() > 1) spool2 = spools.get(1);
-        if(spools.size() > 2) spool3 = spools.get(2);
-        if(spools.size() > 3) spool4 = spools.get(3);
     }
 
     @Override
@@ -32,6 +26,28 @@ public class MultiColor extends StandardFDM {
         spools[3] = spool4;
         return spools;
     }
+    public int getMaxColors() {
+        return maxColors;
+    }
+
+    public void setCurrentSpools(ArrayList<Spool> spools) {
+        setCurrentSpool(spools.get(0));
+        if(spools.size() > 1) spool2 = spools.get(1);
+        if(spools.size() > 2) spool3 = spools.get(2);
+        if(spools.size() > 3) spool4 = spools.get(3);
+    }
+
+    @Override
+    public boolean printFits(Print print) {
+        return print.getHeight() <= getMaxZ() && print.getWidth() <= getMaxX() && print.getLength() <= getMaxY();
+    }
+
+    @Override
+    public int CalculatePrintTime(String filename) {
+        return 0;
+    }
+
+
 
     @Override
     public String toString() {
@@ -55,7 +71,5 @@ public class MultiColor extends StandardFDM {
         return result;
     }
 
-    public int getMaxColors() {
-        return maxColors;
-    }
+
 }

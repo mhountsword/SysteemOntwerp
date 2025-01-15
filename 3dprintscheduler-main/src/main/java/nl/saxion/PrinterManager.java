@@ -34,7 +34,7 @@ public class PrinterManager {
             printers.add(printer);
             freePrinters.add(printer);
         } else if (printerType == 3) {
-            MultiColor printer = new MultiColor(id, printerName, manufacturer, maxX, maxY, maxZ, maxColors, false);
+            MultiColor printer = new MultiColor(id, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
             printers.add(printer);
             freePrinters.add(printer);
         }

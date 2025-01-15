@@ -12,6 +12,8 @@ public abstract class Printer {
     private final int maxX;
     private final int maxY;
     private final int maxZ;
+    private Spool currentSpool;
+
 //    "id": 1,
 //    "type": 1,
 //    "name": "Enterprise",
@@ -41,6 +43,14 @@ public abstract class Printer {
     }
 
     public abstract int CalculatePrintTime(String filename);
+
+    public Spool getCurrentSpool() {
+        return currentSpool;
+    }
+
+    public void setCurrentSpool(Spool currentSpool) {
+        this.currentSpool = currentSpool;
+    }
 
     public abstract Spool[] getCurrentSpools();
 
