@@ -8,6 +8,7 @@ import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.prints.PrintTask;
 import nl.saxion.Models.spools.Spool;
+import nl.saxion.Models.utils.PrinterFactory;
 
 import java.util.*;
 
@@ -18,26 +19,12 @@ public class PrinterManager {
     private final List<Spool> freeSpools = new ArrayList<>();
     private final List<Printer> freePrinters = new ArrayList<>();
     private final List<PrintTask> pendingPrintTasks = new ArrayList<>();
-    private final Map<Printer, PrintTask> runningPrintTasks = new HashMap();
+    private final Map<Printer, PrintTask> runningPrintTasks = new HashMap<>();
 
     public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) { //receive String[]
-        //TODO
-        //all of this should be able to go
-        //replace with printerfactory
-        if (printerType == 1) {
-            StandardFDM printer = new StandardFDM(id, printerName, manufacturer, maxX, maxY, maxZ,true); //forward to printerfactory
-            printers.add(printer);
-            freePrinters.add(printer);
-        } else if (printerType == 2) {
-            StandardFDM printer = new StandardFDM(id, printerName, manufacturer, maxX, maxY, maxZ,false); //forward to printerfactory
-//          HousedPrinter printer = new HousedPrinter(id, printerName, manufacturer, maxX, maxY, maxZ);
-            printers.add(printer);
-            freePrinters.add(printer);
-        } else if (printerType == 3) {
-            MultiColor printer = new MultiColor(id, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
-            printers.add(printer);
-            freePrinters.add(printer);
-        }
+        Printer newPrinter = new PrinterFactory().createPrinterByType(id, printerType, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
+        printers.add(newPrinter);
+        freePrinters.add(newPrinter);
     }
 
     public boolean containsSpool(final List<Spool> list, final String name){
