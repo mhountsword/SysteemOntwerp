@@ -49,6 +49,21 @@ public class Facade {
         }
     }
 
+    public void registerPrintCompletion(int printerId) throws PrintError {
+        Map.Entry<Printer, PrintTask> foundEntry = null;
+        for (Map.Entry<Printer, PrintTask> entry : printTaskManager.getAllRunningTasks().entrySet()) {
+            if (entry.getKey().getId() == printerId) {
+                foundEntry = entry;
+                break;
+            }
+        }
+        if (foundEntry == null) {
+            throw new PrintError("cannot find a running task on printer with ID " + printerId);
+        }
+        PrintTask task = foundEntry.getValue();
+        removeTask(foundEntry, task);
+    }
+
     public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
         Print print = printerManager.findPrint(printName);
         if (print == null) {
@@ -73,21 +88,6 @@ public class Facade {
         PrintTask task = new PrintTask(print, colors, filamentType);
         printTaskManager.addPendingPrintTask(task);
         System.out.println("Added task to queue");
-    }
-
-    public void registerPrintCompletion(int printerId) throws PrintError {
-        Map.Entry<Printer, PrintTask> foundEntry = null;
-        for (Map.Entry<Printer, PrintTask> entry : printTaskManager.getAllRunningTasks().entrySet()) {
-            if (entry.getKey().getId() == printerId) {
-                foundEntry = entry;
-                break;
-            }
-        }
-        if (foundEntry == null) {
-            throw new PrintError("cannot find a running task on printer with ID " + printerId);
-        }
-        PrintTask task = foundEntry.getValue();
-        removeTask(foundEntry, task);
     }
 
     private void removeTask(Map.Entry<Printer, PrintTask> foundEntry, PrintTask task) {

@@ -12,10 +12,6 @@ public class HousedPrinter extends Printer{
         super(id, printerName, manufacturer, maxX, maxY, maxZ);
     }
 
-    public HousedPrinter(String[] values) {
-        super(values);
-    }
-
     @Override
     public int CalculatePrintTime(String filename) {
         return 0;
