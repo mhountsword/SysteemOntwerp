@@ -12,7 +12,7 @@ import java.util.*;
 
 public class PrintTaskManager {
 
-    private final static PrinterManager printerManager = new PrinterManager();
+    private final static PrinterManager printerManager = PrinterManager.getInstance();
 
     private final List<PrintTask> pendingPrintTasks = new ArrayList<>();
     private final List<Printer> freePrinters = printerManager.getFreePrinters();

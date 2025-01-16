@@ -13,7 +13,7 @@ import nl.saxion.exceptions.PrintError;
 import java.util.*;
 
 public class Facade {
-    private final PrinterManager printerManager = new PrinterManager();
+    private final PrinterManager printerManager = PrinterManager.getInstance();
     private final PrintTaskManager printTaskManager = new PrintTaskManager();
     private String printStrategy = "Less Spool Changes";
 
@@ -103,7 +103,7 @@ public class Facade {
     }
 
     public void startPrintQueue() {
-        printerManager.startInitialQueue();
+        printTaskManager.startQueue();
     }
 
     public List<Printer> getPrinters() {
