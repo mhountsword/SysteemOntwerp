@@ -2,43 +2,39 @@
 'https://plantuml.com/class-diagram
 
 class Main {
--Console console
--PrintManager printManager
+-Scanner scanner
 -Facade facade
 +{static}void main(String[])
-+void run(String[])
++void run()
 +void menu()
--void initialize()
-+String stringInput()
-+int menuChoice(int)
-+int numberInput()
-+int numberInput(int, int)
+-void startPrintQueue()
+-void changePrintStrategy()
+-void registerPrintCompletion()
+-void addNewPrintTask()
+-void showPendingPrintTasks()
 +void showPrints()
 +void showSpools()
 +void showPrinters()
++int menuChoice(int)
++int numberInput(int, int)
 }
 
 interface FileReader {
-    +ArrayList<Print> readPrints(String)
-    +ArrayList<Printers> readPrinters(String)
-    +ArrayList<Spools> readSpools(String)
+    +JSONArray readFile(String filePath)
 }
 
-class CSVtoJSONAdapter implements FileReader {
-    +ArrayList<Print> readPrints(String)
-    +ArrayList<Printers> readPrinters(String)
-    +ArrayList<Spools> readSpools(String)
+class CSVAdapter implements FileReader {
+    +JSONArray readFile(String filePath)
 }
 
-class Reader {
--Scanner scanner
+class Reader  {
 +ArrayList<Print> readPrintsFromFile(String)
 +ArrayList<Printers> readPrintersFromFile(String)
 +ArrayList<Spools> readSpoolsFromFile(String)
--FileReader fileReader
+-Printer parsePrinter(JSONObject)
+-Print parsePrint(JSONObject)
+-Spool parseSpool(JSONObject)
 }
-
-Reader::fileReader *-- CSVtoJSONAdapter
 
 Main::menuChoice *.. Facade
 Main::initialize *.. Reader
@@ -48,52 +44,45 @@ Main::initialize *.. Reader
 -List<Printer> freePrinters
 -List<Spool> spools
 -List<Spool> freeSpools
+-List<Print> prints
+-List<PrintTask> pendingPrintTasks
+-Map<Printer, PrintTask> runningPrintTasks
++void addPrinter(int, int, String, String, int, int, int, int)
++boolean containsSpool(List<Spool>, String)
++void selectPrintTask(printer)
+-PrintTask getPrintTask(Printer, PrintTask, PrintTask)
 +void startInitialQueue()
-+void addPrinter(type, String[] printerValues)
-+void registerPrinterFailure(int)
-+void registerCompletion(int)
-+void printError(String)
++void addPrint(Print)
++List<Print> getPrints()
 +List<Printer> getPrinters()
-+List<PrintTask> getPrintTasks()
++Print findPrint(String)
++PrintTask getPrinterCurrentTask(Printer)
++Map<Printer, PrintTask> getAllRunningTasks()
++List<PrintTask> getPendingPrintTasks()
++void addPendingPrintTask(PrintTask)
++void addSpool(Spool)
++List<Spool> getSpools()
 }
-PrinterManager::printers *-- Printer
-PrinterManager::freePrinters *.. Printer
-PrinterManager::pendingPrintTasks o-- PrintTask
-PrinterManager::spools *-- Spool
-PrinterManager::freeSpools *.. Spool
-PrinterManager::runningPrintTask *.. Printer
-PrinterManager::runningPrintTask *.. PrintTask
 
 +class Facade{
-    + void addTask(PrintTask task)
-    + void assignTasks(PrinterManager printerManager)
-    + void completeTask(Printer printer)
-    + void handleTaskFailure(Printer printer)
++void initialize()
++void changePrintStrategy(int)
++void addPrintTask(String, List<String>, FilamentType)
++void registerPrintCompletion(int)
++void removeTask(Map<Printer, PrintTask>, PrintTask)
++void startPrintqueue()
++List<Printer> getPrinters()
++List<Print> getPrints()
++List<Spool> getSpools()
++List<PrintTask> getPendingPrintTasks()
++PrintTask getPrinterCurrentTask(Printer printer)
++String getCurrentStrategy()
+-int getPrinterType(Printer)
 }
 Facade::runningTasks *-- Printer
 Facade::runningTasks *-- PrintTask
 Facade o-- PrinterManager
 Facade o-- PrintTask
-
-+class PrintManager{
--List<Print> prints
-+List<Print> getPrints()
-+Print findPrint(String)
-+Print findPrint(int)
-+void showPendingPrintTasks()
-}
-PrintManager::prints *.. Print
-
-
-+class SpoolManager{
--List<Spool> spools
-+boolean ContainsSpool(final list<Spool>, final String)
-+list<Spool> getSpools()
-+void addSpool(Spool)
-+Spool getSpoolById(int)
-}
-
-SpoolManager::spools *.. Spool
 
 +class PrintTask{
 -Print print
@@ -126,8 +115,6 @@ PrintTask::filamentType *.. FilamentType
 - final int maxY;
 - final int maxZ;
 - Spool currentSpool;
-- boolean housed;
-+ boolean isHoused()
 + {abstract} int CalculatePrintTime(String)
 + {abstract} void setCurrentSpools(ArrayList<Spool>)
 + {abstract} boolean printFits(Print)

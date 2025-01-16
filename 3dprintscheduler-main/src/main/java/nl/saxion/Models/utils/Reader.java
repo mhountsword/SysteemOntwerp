@@ -2,11 +2,8 @@ package nl.saxion.Models.utils;
 
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.printers.HousedPrinter;
-import nl.saxion.Models.printers.MultiColor;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.spools.Spool;
-import nl.saxion.Models.printers.StandardFDM;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,7 +15,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class Reader implements FileReader {
+public class Reader {
     private static PrinterFactory printerFactory = new PrinterFactory();
 
     public ArrayList<Print> readPrintsFromFile(String filePath) {
@@ -99,7 +96,7 @@ public class Reader implements FileReader {
         int maxZ = parseInt(printerJson.get("maxZ"));
         int maxColors = parseInt(printerJson.get("maxColors"));
 
-        // Delegate printer creation based on type.
+        // Delegate printer creation based on type
         int type = parseInt(printerJson.get("type"));
         return printerFactory.createPrinterByType(type, id, name, manufacturer, maxX, maxY, maxZ, maxColors);
     }
@@ -134,11 +131,6 @@ public class Reader implements FileReader {
 
         FilamentType type = FilamentType.fromTypeString(filamentType);
         return new Spool(id, color, type, length);
-    }
-
-    @Override
-    public JSONArray readFile(String filePath) throws IOException {
-        return null;
     }
 
     private int parseInt(Object value) {

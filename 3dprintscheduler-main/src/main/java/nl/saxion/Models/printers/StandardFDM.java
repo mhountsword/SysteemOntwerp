@@ -7,15 +7,8 @@ import java.util.ArrayList;
 
 /* Standard cartesian FDM printer */
 public class StandardFDM extends Printer {
-    private boolean housed;
-    public StandardFDM(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, boolean housed) {
+    public StandardFDM(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ) {
         super(id, printerName, manufacturer, maxX, maxY, maxZ);
-        this.housed = housed;
-
-    }
-    public StandardFDM(String[] values) {
-        super(values);
-        this.housed = values[1].equals("2");
     }
 
     public void setCurrentSpools(ArrayList<Spool> spools) {
@@ -24,10 +17,6 @@ public class StandardFDM extends Printer {
     @Override
     public Spool[] getCurrentSpools() {
         return new Spool[0];
-    }
-
-    public boolean isHoused() {
-        return housed;
     }
 
     @Override

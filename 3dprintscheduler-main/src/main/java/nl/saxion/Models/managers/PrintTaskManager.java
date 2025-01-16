@@ -1,35 +1,24 @@
-package nl.saxion;
+package nl.saxion.Models.managers;
 
 import nl.saxion.Models.printers.HousedPrinter;
 import nl.saxion.Models.printers.MultiColor;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.printers.StandardFDM;
-import nl.saxion.Models.spools.FilamentType;
-import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.prints.PrintTask;
+import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.spools.Spool;
-import nl.saxion.Models.utils.PrinterFactory;
 
 import java.util.*;
 
-public class PrinterManager {
-    private final List<Printer> printers = new ArrayList<>();
-    private final List<Print> prints = new ArrayList<>();
-    private final List<Spool> spools = new ArrayList<>();
-    private final List<Spool> freeSpools = new ArrayList<>();
-    private final List<Printer> freePrinters = new ArrayList<>();
+public class PrintTaskManager {
+
+    private final static PrinterManager printerManager = new PrinterManager();
+
     private final List<PrintTask> pendingPrintTasks = new ArrayList<>();
+    private final List<Printer> freePrinters = printerManager.getFreePrinters();
+    private final List<Spool> freeSpools = printerManager.getFreeSpools();
     private final Map<Printer, PrintTask> runningPrintTasks = new HashMap<>();
 
-    public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) { //receive String[]
-        Printer newPrinter = new PrinterFactory().createPrinterByType(id, printerType, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
-        printers.add(newPrinter);
-        freePrinters.add(newPrinter);
-    }
-
-    public boolean containsSpool(final List<Spool> list, final String name){
-        return list.stream().anyMatch(o -> o.getColor().equals(name));
-    }
 
     public void selectPrintTask(Printer printer) {
         Spool[] spools = printer.getCurrentSpools();
@@ -128,6 +117,10 @@ public class PrinterManager {
         }
     }
 
+    public boolean containsSpool(final List<Spool> list, final String name){
+        return list.stream().anyMatch(o -> o.getColor().equals(name));
+    }
+
     private PrintTask getPrintTask(Printer printer, PrintTask chosenTask, PrintTask printTask) {
         Spool chosenSpool = null;
         for (Spool spool : freeSpools) {
@@ -147,32 +140,10 @@ public class PrinterManager {
         return chosenTask;
     }
 
-    public void startInitialQueue() {
-        for(Printer printer: printers) {
+    public void startQueue() {
+        for(Printer printer : printerManager.getPrinters()) {
             selectPrintTask(printer);
         }
-    }
-
-    public void addPrint(Print print) {
-        Print p = new Print(print.getName(), print.getHeight(), print.getWidth(), print.getLength(), print.getFilamentLength(), print.getPrintTime());
-        prints.add(p);
-    }
-
-    public List<Print> getPrints() {
-        return prints;
-    }
-
-    public List<Printer> getPrinters() {
-        return printers;
-    }
-
-    public Print findPrint(String printName) {
-        for (Print p : prints) {
-            if (p.getName().equals(printName)) {
-                return p;
-            }
-        }
-        return null;
     }
 
     public PrintTask getPrinterCurrentTask(Printer printer) {
@@ -186,17 +157,11 @@ public class PrinterManager {
         return runningPrintTasks;
     }
 
-    public List<PrintTask> getPendingPrintTasks() {return pendingPrintTasks; }
+    public List<PrintTask> getPendingPrintTasks() {
+        return pendingPrintTasks;
+    }
+
     public void addPendingPrintTask(PrintTask printTask) {
         pendingPrintTasks.add(printTask);
-    }
-
-    public void addSpool(Spool spool) {
-        spools.add(spool);
-        freeSpools.add(spool);
-    }
-
-    public List<Spool> getSpools() {
-        return spools;
     }
 }

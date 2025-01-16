@@ -1,5 +1,7 @@
 package nl.saxion;
 
+import nl.saxion.Models.managers.PrintTaskManager;
+import nl.saxion.Models.managers.PrinterManager;
 import nl.saxion.Models.printers.*;
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
@@ -11,8 +13,10 @@ import nl.saxion.exceptions.PrintError;
 import java.util.*;
 
 public class Facade {
-    private final PrinterManager manager = new PrinterManager();
+    private final PrinterManager printerManager = new PrinterManager();
+    private final PrintTaskManager printTaskManager = new PrintTaskManager();
     private String printStrategy = "Less Spool Changes";
+
     public void initialize() {
         Reader fileReader = new Reader();
         ArrayList<Print> prints = fileReader.readPrintsFromFile("prints.json");
@@ -20,11 +24,11 @@ public class Facade {
         ArrayList<Printer> printers = fileReader.readPrintersFromFile("printers.json");
 
         for (Spool spool : spools) {
-            manager.addSpool(spool);
+            printerManager.addSpool(spool);
         }
 
         for (Print print : prints) {
-            manager.addPrint(print);
+            printerManager.addPrint(print);
         }
 
         for (Printer printer : printers) {
@@ -32,8 +36,8 @@ public class Facade {
             if (printer instanceof MultiColor) {
                 maxColors = ((MultiColor) printer).getMaxColors();
             }
-            manager.addPrinter(printer.getId(), getPrinterType(printer), printer.getName(),
-                    printer.getManufacturer(), printer.getMaxX(), printer.getMaxY(), printer.getMaxZ(), maxColors);
+            printerManager.addPrinter(printer.getId(), getPrinterType(printer), printer.getName(),
+            printer.getManufacturer(), printer.getMaxX(), printer.getMaxY(), printer.getMaxZ(), maxColors);
         }
     }
 
@@ -46,7 +50,7 @@ public class Facade {
     }
 
     public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
-        Print print = manager.findPrint(printName);
+        Print print = printerManager.findPrint(printName);
         if (print == null) {
             throw new PrintError("Could not find print with name " + printName);
         }
@@ -55,7 +59,7 @@ public class Facade {
         }
         for (String color : colors) {
             boolean found = false;
-            for (Spool spool : manager.getSpools()) {
+            for (Spool spool : printerManager.getSpools()) {
                 if (spool.getColor().equals(color) && spool.getFilamentType() == filamentType) {
                     found = true;
                     break;
@@ -67,15 +71,13 @@ public class Facade {
         }
 
         PrintTask task = new PrintTask(print, colors, filamentType);
-        manager.addPendingPrintTask(task);
+        printTaskManager.addPendingPrintTask(task);
         System.out.println("Added task to queue");
     }
 
-
-
     public void registerPrintCompletion(int printerId) throws PrintError {
         Map.Entry<Printer, PrintTask> foundEntry = null;
-        for (Map.Entry<Printer, PrintTask> entry : manager.getAllRunningTasks().entrySet()) {
+        for (Map.Entry<Printer, PrintTask> entry : printTaskManager.getAllRunningTasks().entrySet()) {
             if (entry.getKey().getId() == printerId) {
                 foundEntry = entry;
                 break;
@@ -89,7 +91,7 @@ public class Facade {
     }
 
     private void removeTask(Map.Entry<Printer, PrintTask> foundEntry, PrintTask task) {
-        manager.getAllRunningTasks().remove(foundEntry.getKey());
+        printTaskManager.getAllRunningTasks().remove(foundEntry.getKey());
         System.out.println("Task " + task + " removed from printer " + foundEntry.getKey().getName());
         Printer printer = foundEntry.getKey();
         Spool[] spools = printer.getCurrentSpools();
@@ -97,31 +99,31 @@ public class Facade {
         for(int i=0; i<spools.length && i < task.getColors().size();i++) {
             spools[i].reduceLength(task.getPrint().getFilamentLength().get(i));
         }
-        manager.selectPrintTask(printer);
+        printTaskManager.selectPrintTask(printer);
     }
 
     public void startPrintQueue() {
-        manager.startInitialQueue();
+        printerManager.startInitialQueue();
     }
 
     public List<Printer> getPrinters() {
-        return manager.getPrinters();
+        return printerManager.getPrinters();
     }
 
     public List<Print> getPrints() {
-        return manager.getPrints();
+        return printerManager.getPrints();
     }
 
     public List<Spool> getSpools() {
-        return manager.getSpools();
+        return printerManager.getSpools();
     }
 
     public PrintTask getPrinterCurrentTask(Printer printer) {
-        return manager.getPrinterCurrentTask(printer);
+        return printTaskManager.getPrinterCurrentTask(printer);
     }
 
     public List<PrintTask> getPendingPrintTasks() {
-        return manager.getPendingPrintTasks();
+        return printTaskManager.getPendingPrintTasks();
     }
 
     public String getCurrentStrategy() {
