@@ -12,6 +12,7 @@ import nl.saxion.exceptions.PrintError;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Facade {
 //    TODO: er zit te veel business logic in de facade.
@@ -93,16 +94,22 @@ public class Facade {
 
 
     private void removeTask(Map.Entry<Printer, PrintTask> foundEntry, PrintTask task) {
-        printTaskManager.getAllRunningTasks().remove(foundEntry.getKey());
-        System.out.println("Task " + task + " removed from printer " + foundEntry.getKey().getName());
         Printer printer = foundEntry.getKey();
-        Spool[] spools = printer.getCurrentSpools();
 
-        for(int i=0; i<spools.length && i < task.getColors().size();i++) {
-            spools[i].reduceLength(task.getPrint().getFilamentLength().get(i));
-        }
+        printTaskManager.getAllRunningTasks().remove(printer);
+        System.out.println("Task " + task + " removed from printer " + printer.getName());
+
+        List<Spool> spools = Arrays.asList(printer.getCurrentSpools());
+        List<Double> filamentLengths = task.getPrint().getFilamentLength();
+
+        int minSize = Math.min(spools.size(), task.getColors().size());
+
+        IntStream.range(0, minSize)
+                .forEach(i -> spools.get(i).reduceLength(filamentLengths.get(i)));
+
         printTaskManager.selectPrintTask(printer);
     }
+
 
     public void startPrintQueue() {
         printTaskManager.startQueue();
