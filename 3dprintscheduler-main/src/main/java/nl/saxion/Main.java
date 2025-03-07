@@ -26,14 +26,14 @@ public class Main {
             choice = menuChoice(9);
             System.out.println("-----------------------------------");
             switch (choice) {
-                case 1: addNewPrintTask(); break;
-                case 2, 3: registerPrintCompletion(); break;
-                case 4: changePrintStrategy(); break;
-                case 5: startPrintQueue(); break;
-                case 6: showPrints(); break;
-                case 7: showPrinters(); break;
-                case 8: showSpools(); break;
-                case 9: showPendingPrintTasks(); break;
+                case 1 -> addNewPrintTask();
+                case 2, 3 -> registerPrintCompletion();
+                case 4 -> changePrintStrategy();
+                case 5 -> startPrintQueue();
+                case 6 -> showPrints();
+                case 7 -> showPrinters();
+                case 8 -> showSpools();
+                case 9 -> showPendingPrintTasks();
             }
         }
     }

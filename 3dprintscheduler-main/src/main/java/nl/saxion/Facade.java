@@ -11,13 +11,16 @@ import nl.saxion.Models.utils.Reader;
 import nl.saxion.exceptions.PrintError;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Facade {
+//    TODO: er zit te veel business logic in de facade.
     private final PrinterManager printerManager = PrinterManager.getInstance();
     private final PrintTaskManager printTaskManager = new PrintTaskManager();
     private String printStrategy = "Less Spool Changes";
 
     public void initialize() {
+
         Reader fileReader = new Reader();
         ArrayList<Print> prints = fileReader.readPrintsFromFile("prints.json");
         ArrayList<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
@@ -65,30 +68,29 @@ public class Facade {
     }
 
     public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
-        Print print = printerManager.findPrint(printName);
-        if (print == null) {
-            throw new PrintError("Could not find print with name " + printName);
-        }
+        Print print = Optional.ofNullable(printerManager.findPrint(printName))
+                .orElseThrow(() -> new PrintError("Could not find print with name " + printName));
+
         if (colors.isEmpty()) {
-            throw new PrintError("Need at least one color, but none given");
-        }
-        for (String color : colors) {
-            boolean found = false;
-            for (Spool spool : printerManager.getSpools()) {
-                if (spool.getColor().equals(color) && spool.getFilamentType() == filamentType) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                throw new PrintError("Color " + color + " (" + filamentType +") not found");
-            }
+            throw new PrintError("no colors available");
         }
 
+        Set<String> availableColors = printerManager.getSpools().stream()
+                .filter(spool -> spool.getFilamentType() == filamentType)
+                .map(Spool::getColor)
+                .collect(Collectors.toSet());
+
+        List<String> missingColors = colors.stream()
+                .filter(color -> !availableColors.contains(color)).toList();
+
+        if (!missingColors.isEmpty()) {
+            throw new PrintError("Colors not found for filament type " + filamentType + ": " + missingColors);
+        }
         PrintTask task = new PrintTask(print, colors, filamentType);
         printTaskManager.addPendingPrintTask(task);
         System.out.println("Added task to queue");
     }
+
 
     private void removeTask(Map.Entry<Printer, PrintTask> foundEntry, PrintTask task) {
         printTaskManager.getAllRunningTasks().remove(foundEntry.getKey());
@@ -107,15 +109,15 @@ public class Facade {
     }
 
     public List<Printer> getPrinters() {
-        return printerManager.getPrinters();
+        return new ArrayList<>(printerManager.getPrinters());
     }
 
     public List<Print> getPrints() {
-        return printerManager.getPrints();
+        return new ArrayList<>(printerManager.getPrints());
     }
 
     public List<Spool> getSpools() {
-        return printerManager.getSpools();
+        return new ArrayList<>(printerManager.getSpools());
     }
 
     public PrintTask getPrinterCurrentTask(Printer printer) {
