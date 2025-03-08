@@ -130,7 +130,6 @@ public class Main {
 
     private void showPrints() {
         var prints = facade.getPrints();
-
         if (prints.isEmpty()) {
             System.out.println("no prints available. ");
             return;
@@ -149,7 +148,6 @@ public class Main {
         } else {
             spools.forEach(System.out::println);
             System.out.println("---------- Spools ----------");
-
         }
         System.out.println("----------------------------");
     }
@@ -171,7 +169,6 @@ public class Main {
         } else {
             printTasks.forEach(System.out::println);
             System.out.println("--------- Pending Print Tasks ---------");
-
         }
         System.out.println("--------------------------------------");
     }
