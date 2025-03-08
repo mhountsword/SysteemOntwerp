@@ -8,6 +8,7 @@ import nl.saxion.Models.spools.Spool;
 import nl.saxion.exceptions.PrintError;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Main {
     Scanner scanner = new Scanner(System.in);
@@ -19,7 +20,6 @@ public class Main {
 
     public void run() {
         facade.initialize();  // Initialize everything using the Facade
-
         int choice = 1;
         while (choice > 0 && choice < 10) {
             menu();
@@ -70,38 +70,46 @@ public class Main {
     }
 
     private void registerPrintCompletion() {
-        try{
+        try {
             List<Printer> printers = facade.getPrinters();
             System.out.println("---------- Currently Running Printers ----------");
-            for (Printer p : printers) {
-                PrintTask printerCurrentTask = facade.getPrinterCurrentTask(p);
-                if (printerCurrentTask != null) {
-                    System.out.println("- " + p.getId() + ": " + p.getName() + " - " + printerCurrentTask);
-                }
-            }
-            System.out.print("- Printer that is done (ID): ");
+            printers.stream()
+                    .map(printer -> Map.entry(printer, facade.getPrinterCurrentTask(printer)))
+                    .filter(entry -> entry.getValue() != null)
+                    .forEach(entry -> System.out.println("- " + entry.getKey().getId() + ": " + entry.getKey().getName() + " - " + entry.getValue()));
+
             int printerId = numberInput(-1, printers.size());
+            if (printers.stream().noneMatch(p -> p.getId() == printerId)) {
+                System.out.println("Invalid printer ID: " + printerId);
+                return;
+            }
+
+            System.out.print("- Printer that is done (ID): ");
             facade.registerPrintCompletion(printerId);
             System.out.println("-----------------------------------");
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
     }
 
     private void addNewPrintTask() {
-        try{
+        try {
             System.out.println("---------- New Print Task ----------");
             List<String> colors = new ArrayList<>();
             List<Print> prints = facade.getPrints();
-            int counter = 1;
-            for (Print p : prints) {
-                System.out.println("- " + counter + ": " + p.getName());
-                counter++;
+            if (prints.isEmpty()) {
+                System.out.println("no available prints");
+                return;
             }
+            IntStream.range(0, prints.size())
+                    .forEach(i -> System.out.println("- " + i + 1 + ": " + prints.get(i).getName()));
+
             System.out.print("- Print number: ");
             int printNumber = numberInput(1, prints.size());
-            Print print = facade.getPrints().get(printNumber - 1);
+
+            Print print = prints.get(printNumber - 1);
+
             System.out.println("---------- Filament Type ----------");
             System.out.println("- 1: PLA");
             System.out.println("- 2: PETG");
@@ -122,18 +130,26 @@ public class Main {
 
     private void showPrints() {
         var prints = facade.getPrints();
-        System.out.println("---------- Available prints ----------");
-        for (Print p : prints) {
-            System.out.println(p);
+
+        if (prints.isEmpty()) {
+            System.out.println("no prints available. ");
+            return;
+        } else {
+            System.out.println("---------- Available prints ----------");
+            prints.forEach(System.out::println);
         }
         System.out.println("--------------------------------------");
     }
 
     private void showSpools() {
         var spools = facade.getSpools();
-        System.out.println("---------- Spools ----------");
-        for (Spool spool : spools) {
-            System.out.println(spool);
+        if (spools.isEmpty()) {
+            System.out.println("no spools available. ");
+            return;
+        } else {
+            spools.forEach(System.out::println);
+            System.out.println("---------- Spools ----------");
+
         }
         System.out.println("----------------------------");
     }
@@ -149,9 +165,13 @@ public class Main {
 
     private void showPendingPrintTasks() {
         var printTasks = facade.getPendingPrintTasks();
-        System.out.println("--------- Pending Print Tasks ---------");
-        for (PrintTask p : printTasks) {
-            System.out.println(p);
+        if (printTasks.isEmpty()) {
+            System.out.println("no pending print tasks. ");
+            return;
+        } else {
+            printTasks.forEach(System.out::println);
+            System.out.println("--------- Pending Print Tasks ---------");
+
         }
         System.out.println("--------------------------------------");
     }

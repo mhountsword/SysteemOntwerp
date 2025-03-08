@@ -20,29 +20,31 @@ public class Facade {
     private final PrintTaskManager printTaskManager = new PrintTaskManager();
     private String printStrategy = "Less Spool Changes";
 
+
+    private int getMaxColors(Printer printer) {
+        return (printer instanceof MultiColor) ? ((MultiColor) printer).getMaxColors() : 1;
+    }
+
     public void initialize() {
-
         Reader fileReader = new Reader();
-        ArrayList<Print> prints = fileReader.readPrintsFromFile("prints.json");
-        ArrayList<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
-        ArrayList<Printer> printers = fileReader.readPrintersFromFile("printers.json");
+        List<Print> prints = fileReader.readPrintsFromFile("prints.json");
+        List<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
+        List<Printer> printers = fileReader.readPrintersFromFile("printers.json");
 
-        for (Spool spool : spools) {
-            printerManager.addSpool(spool);
-        }
+       spools.forEach(printerManager::addSpool);
 
-        for (Print print : prints) {
-            printerManager.addPrint(print);
-        }
+        prints.forEach(printerManager::addPrint);
 
-        for (Printer printer : printers) {
-            int maxColors = 1;
-            if (printer instanceof MultiColor) {
-                maxColors = ((MultiColor) printer).getMaxColors();
-            }
-            printerManager.addPrinter(printer.getId(), getPrinterType(printer), printer.getName(),
-            printer.getManufacturer(), printer.getMaxX(), printer.getMaxY(), printer.getMaxZ(), maxColors);
-        }
+        printers.forEach(printer -> printerManager.addPrinter(
+                printer.getId(),
+                getPrinterType(printer),
+                printer.getName(),
+                printer.getManufacturer(),
+                printer.getMaxX(),
+                printer.getMaxY(),
+                printer.getMaxZ(),
+                getMaxColors(printer)
+        ));
     }
 
     public void changePrintStrategy(int strategyChoice) {
@@ -54,18 +56,12 @@ public class Facade {
     }
 
     public void registerPrintCompletion(int printerId) throws PrintError {
-        Map.Entry<Printer, PrintTask> foundEntry = null;
-        for (Map.Entry<Printer, PrintTask> entry : printTaskManager.getAllRunningTasks().entrySet()) {
-            if (entry.getKey().getId() == printerId) {
-                foundEntry = entry;
-                break;
-            }
-        }
-        if (foundEntry == null) {
-            throw new PrintError("cannot find a running task on printer with ID " + printerId);
-        }
-        PrintTask task = foundEntry.getValue();
-        removeTask(foundEntry, task);
+        Map.Entry<Printer, PrintTask> foundEntry = printTaskManager.getAllRunningTasks().entrySet().stream()
+                .filter(entry -> entry.getKey().getId() == printerId)
+                .findFirst()
+                .orElseThrow(() -> new PrintError("cannot find a running task on printer with ID " + printerId));
+
+        removeTask(foundEntry, foundEntry.getValue());
     }
 
     public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
