@@ -1,5 +1,6 @@
-package nl.saxion.utils;
+package nl.saxion.Models.utils;
 
+import com.opencsv.exceptions.CsvException;
 import org.json.simple.JSONArray;
 import java.io.IOException;
 

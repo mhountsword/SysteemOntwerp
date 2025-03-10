@@ -3,7 +3,7 @@ package nl.saxion.Models.managers;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.spools.Spool;
-import nl.saxion.utils.PrinterFactory;
+import nl.saxion.Models.utils.PrinterFactory;
 
 import java.util.*;
 

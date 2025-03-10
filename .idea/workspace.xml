@@ -56,15 +56,12 @@
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/XLmaa/OneDrive/Desktop/School/Jaar 2/Kwartiel 2/Systeem Ontwerp/SysteemOntwerp/3dprintscheduler-main",
+    "last_opened_file_path": "C:/Users/Damien/Desktop/Saxion/Schooljaar2/Semester2/Systeemontwerp/SYSTEEMONTWERPFIXED/SysteemOntwerp",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "ml.llm.AIAssistantPromptsLibrary",
     "vue.rearranger.settings.migration": "true"
   }
@@ -82,6 +79,14 @@
       <method v="2" />
     </configuration>
   </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -97,7 +102,6 @@
       <workItem from="1736444736647" duration="338000" />
       <workItem from="1736445086048" duration="28000" />
       <workItem from="1736502113770" duration="64000" />
-      <workItem from="1741266462696" duration="86000" />
     </task>
     <servers />
   </component>
