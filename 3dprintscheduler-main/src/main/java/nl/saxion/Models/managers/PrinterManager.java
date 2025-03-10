@@ -15,6 +15,21 @@ public class PrinterManager {
     private final List<Spool> freeSpools = new ArrayList<>();
     private final List<Print> prints = new ArrayList<>();
 
+    public List<Print> getPrints() {
+        return new ArrayList<>(prints);
+    }
+    public List<Printer> getPrinters() {
+        return new ArrayList<>(printers);
+    }
+    public List<Spool> getSpools() {
+        return spools;
+    }
+    public List<Printer> getFreePrinters() {
+        return new ArrayList<>(freePrinters);
+    }
+    public List<Spool> getFreeSpools() {
+        return new ArrayList<>(freeSpools);
+    }
 
     public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) { //receive String[]
         Printer newPrinter = new PrinterFactory().createPrinterByType(id, printerType, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
@@ -41,22 +56,6 @@ public class PrinterManager {
         freeSpools.add(spool);
     }
 
-    public List<Print> getPrints() {
-        return prints;
-    }
-
-    public List<Printer> getPrinters() {
-        return printers;
-    }
-
-    public List<Printer> getFreePrinters() {
-        return freePrinters;
-    }
-
-    public List<Spool> getFreeSpools() {
-        return freeSpools;
-    }
-
     public static PrinterManager getInstance() { //Singleton
         if (instance == null) {
             instance = new PrinterManager();
@@ -64,8 +63,21 @@ public class PrinterManager {
         return instance;
     }
 
-    public List<Spool> getSpools() {
-        return spools;
+    public void printPrinters(){
+        System.out.println("--------- Available printers ---------");
+        printers.forEach(printer -> System.out.println(printer.toString()));
+        System.out.println("--------------------------------------");
+    }
+
+    public void printSpools(){
+        System.out.println("--------- Spools ---------");
+        spools.forEach(spool -> System.out.println(spool.toString()));
+        System.out.println("--------------------------------------");
+    }
+    public void printPrints(){
+        System.out.println("---------- Available prints ----------");
+        prints.forEach(print -> System.out.println(print.toString()));
+        System.out.println("--------------------------------------");
     }
 }
 

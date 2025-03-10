@@ -11,7 +11,6 @@ import nl.saxion.Models.utils.Reader;
 import nl.saxion.exceptions.PrintError;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Facade {
@@ -19,6 +18,7 @@ public class Facade {
     private final PrinterManager printerManager = PrinterManager.getInstance();
     private final PrintTaskManager printTaskManager = new PrintTaskManager();
     private String printStrategy = "Less Spool Changes";
+    private final Scanner scanner = new Scanner(System.in);
 
 
     private int getMaxColors(Printer printer) {
@@ -47,7 +47,14 @@ public class Facade {
         ));
     }
 
-    public void changePrintStrategy(int strategyChoice) {
+    public void changePrintStrategy() {
+        System.out.println("---------- Change Strategy -------------");
+        System.out.println("- Current strategy: " +getCurrentStrategy());
+        System.out.println("- 1: Less Spool Changes");
+        System.out.println("- 2: Efficient Spool Usage");
+        System.out.print("- Choose strategy: ");
+        int strategyChoice = numberInput(1, 2);
+        System.out.println("-----------------------------------");
         if (strategyChoice == 1) {
             printStrategy = "Less Spool Changes";
         } else if (strategyChoice == 2) {
@@ -55,84 +62,88 @@ public class Facade {
         }
     }
 
-    public void registerPrintCompletion(int printerId) throws PrintError {
-        Map.Entry<Printer, PrintTask> foundEntry = printTaskManager.getAllRunningTasks().entrySet().stream()
-                .filter(entry -> entry.getKey().getId() == printerId)
-                .findFirst()
-                .orElseThrow(() -> new PrintError("cannot find a running task on printer with ID " + printerId));
-
-        removeTask(foundEntry, foundEntry.getValue());
+    public void registerPrintCompletion() throws PrintError {
+        int printerId = scanner.nextInt();
+        printTaskManager.registerPrintCompletion(printerId);
     }
 
     public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
-        Print print = Optional.ofNullable(printerManager.findPrint(printName))
-                .orElseThrow(() -> new PrintError("Could not find print with name " + printName));
+        printTaskManager.addPrintTask(printName,colors,filamentType);
+    }
+    public void addNewPrintTask() {
+        try {
+            System.out.println("---------- New Print Task ----------");
+            List<String> colors = new ArrayList<>();
+            List<Print> prints = printerManager.getPrints();
+            if (prints.isEmpty()) {
+                System.out.println("no available prints");
+                return;
+            }
+            IntStream.range(0, prints.size())
+                    .forEach(i -> System.out.println("- " + i + 1 + ": " + prints.get(i).getName()));
 
-        if (colors.isEmpty()) {
-            throw new PrintError("no colors available");
+            System.out.print("- Print number: ");
+            int printNumber = numberInput(1, prints.size());
+
+            Print print = prints.get(printNumber - 1);
+
+            System.out.println("---------- Filament Type ----------");
+            System.out.println("- 1: PLA");
+            System.out.println("- 2: PETG");
+            System.out.println("- 3: ABS");
+            System.out.print("- Filament type number: ");
+            int filamentType = numberInput(1, 3);
+            FilamentType type = switch (filamentType) {
+                case 2 -> FilamentType.PETG;
+                case 3 -> FilamentType.ABS;
+                default -> FilamentType.PLA;
+            };
+            addPrintTask(print.getName(), colors, type);
+            System.out.println("----------------------------");
+        } catch (PrintError e) {
+            System.out.println(e.getMessage());
         }
-
-        Set<String> availableColors = printerManager.getSpools().stream()
-                .filter(spool -> spool.getFilamentType() == filamentType)
-                .map(Spool::getColor)
-                .collect(Collectors.toSet());
-
-        List<String> missingColors = colors.stream()
-                .filter(color -> !availableColors.contains(color)).toList();
-
-        if (!missingColors.isEmpty()) {
-            throw new PrintError("Colors not found for filament type " + filamentType + ": " + missingColors);
-        }
-        PrintTask task = new PrintTask(print, colors, filamentType);
-        printTaskManager.addPendingPrintTask(task);
-        System.out.println("Added task to queue");
     }
 
-
-    private void removeTask(Map.Entry<Printer, PrintTask> foundEntry, PrintTask task) {
-        Printer printer = foundEntry.getKey();
-
-        printTaskManager.getAllRunningTasks().remove(printer);
-        System.out.println("Task " + task + " removed from printer " + printer.getName());
-
-        List<Spool> spools = Arrays.asList(printer.getCurrentSpools());
-        List<Double> filamentLengths = task.getPrint().getFilamentLength();
-
-        int minSize = Math.min(spools.size(), task.getColors().size());
-
-        IntStream.range(0, minSize)
-                .forEach(i -> spools.get(i).reduceLength(filamentLengths.get(i)));
-
-        printTaskManager.selectPrintTask(printer);
-    }
 
 
     public void startPrintQueue() {
+        System.out.println("---------- Starting Print Queue ----------");
         printTaskManager.startQueue();
+        System.out.println("-----------------------------------");
+
     }
 
-    public List<Printer> getPrinters() {
-        return new ArrayList<>(printerManager.getPrinters());
+    public void showPrinters() {
+        printerManager.printPrinters();
     }
 
-    public List<Print> getPrints() {
-        return new ArrayList<>(printerManager.getPrints());
+    public void showPrints() {
+        printerManager.printPrints();
     }
 
-    public List<Spool> getSpools() {
-        return new ArrayList<>(printerManager.getSpools());
+    public void showSpools() {
+        printerManager.printSpools();
     }
 
     public PrintTask getPrinterCurrentTask(Printer printer) {
         return printTaskManager.getPrinterCurrentTask(printer);
     }
 
-    public List<PrintTask> getPendingPrintTasks() {
-        return printTaskManager.getPendingPrintTasks();
+    public void showPendingPrintTasks() {
+        printTaskManager.printPendingPrintTasks();
     }
 
     public String getCurrentStrategy() {
         return printStrategy;
+    }
+
+    public int numberInput(int min, int max) {
+        int input = scanner.nextInt();
+        while (input < min || input > max) {
+            input = scanner.nextInt();
+        }
+        return input;
     }
 
     private int getPrinterType(Printer printer) {
