@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class Reader {
-    private static PrinterFactory printerFactory = new PrinterFactory();
+    private static final PrinterFactory printerFactory = new PrinterFactory();
 
     public ArrayList<Print> readPrintsFromFile(String filePath) {
         JSONParser jsonParser = new JSONParser();

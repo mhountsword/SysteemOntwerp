@@ -31,7 +31,6 @@ public class Main {
             }
         }
     }
-
     public void menu() {
         System.out.println("------------- Menu ----------------");
         System.out.println("- 1) Add new Print Task");
@@ -45,16 +44,5 @@ public class Main {
         System.out.println("- 9) Show pending print tasks");
         System.out.println("- 0) Exit");
     }
-
-
-
-
-
-
-
-
-
-
-
 
 }

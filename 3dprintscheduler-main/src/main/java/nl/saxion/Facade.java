@@ -62,9 +62,13 @@ public class Facade {
         }
     }
 
-    public void registerPrintCompletion() throws PrintError {
+    public void registerPrintCompletion() {
         int printerId = scanner.nextInt();
-        printTaskManager.registerPrintCompletion(printerId);
+        try {
+            printTaskManager.registerPrintCompletion(printerId);
+        }catch (PrintError e){
+            System.out.println(e.getMessage());
+        }
     }
 
     public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
@@ -80,7 +84,7 @@ public class Facade {
                 return;
             }
             IntStream.range(0, prints.size())
-                    .forEach(i -> System.out.println("- " + i + 1 + ": " + prints.get(i).getName()));
+                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
 
             System.out.print("- Print number: ");
             int printNumber = numberInput(1, prints.size());

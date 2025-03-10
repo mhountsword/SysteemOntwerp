@@ -16,7 +16,9 @@ public class StandardFDM extends Printer {
     }
     @Override
     public Spool[] getCurrentSpools() {
-        return new Spool[0] = ;
+        Spool[] result = new Spool[1];
+        result[0] = getCurrentSpool();
+        return result;
     }
 
     @Override
