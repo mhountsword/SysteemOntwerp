@@ -1,4 +1,4 @@
-package nl.saxion.Models.utils;
+package nl.saxion.utils;
 
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;

@@ -7,7 +7,7 @@ import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.prints.PrintTask;
 import nl.saxion.Models.spools.Spool;
-import nl.saxion.Models.utils.Reader;
+import nl.saxion.utils.Reader;
 import nl.saxion.exceptions.PrintError;
 
 import java.util.*;
