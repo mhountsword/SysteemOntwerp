@@ -1,19 +1,16 @@
 package nl.saxion;
 
-import nl.saxion.exceptions.PrintError;
-
 import java.util.*;
 
 public class Main {
     Scanner scanner = new Scanner(System.in);
-    private final Facade facade = new Facade();
+    private final Facade facade = Facade.getInstance();
 
-    public static void main(String[] args) throws PrintError {
+    public static void main(String[] args){
         new Main().run();
     }
 
-    public void run() throws PrintError {
-        facade.initialize();  // Initialize everything using the Facade
+    public void run() {
         int choice = 1;
         while (choice > 0 && choice < 10) {
             menu();

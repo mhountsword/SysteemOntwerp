@@ -22,25 +22,18 @@ public class Spool {
     }
 
     public boolean spoolMatch(String color, FilamentType type) {
-        if(color.equals(this.color) && type == this.getFilamentType()) {
-            return true;
-        }
-        return false;
+        return color.equals(this.color) && type == this.getFilamentType();
     }
     /**
      * This method will try to reduce the length of the spool.
      *
-     * @param byLength
-     * @return boolean which tells you if it is possible or not.
+     * @param byLength the length to reduce the spool by
      */
-    public boolean reduceLength(double byLength) {
-        boolean success = true;
+    public void reduceLength(double byLength) {
         this.length -= byLength;
         if (this.length < 0) {
             this.length -= byLength;
-            success = false;
         }
-        return success;
     }
 
     public String getColor() {
