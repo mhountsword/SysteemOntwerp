@@ -1,7 +1,4 @@
 package nl.saxion;
-
-import nl.saxion.exceptions.PrintError;
-
 import java.util.*;
 
 public class Main {

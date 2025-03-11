@@ -21,8 +21,6 @@ public class Facade {
     private final Scanner scanner = new Scanner(System.in);
     private static Facade instance;
 
-
-
     private Facade() {
         printerManager = PrinterManager.getInstance();
         printManager = PrintManager.getInstance();
@@ -75,9 +73,7 @@ public class Facade {
     }
 
     public void startPrintQueue() {
-        System.out.println("---------- Starting Print Queue ----------");
         printTaskManager.startQueue();
-        System.out.println("-----------------------------------");
     }
 
     public void showPendingPrintTasks() {
