@@ -2,6 +2,7 @@ package nl.saxion.utils.readers;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
+import nl.saxion.utils.readers.FileReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
