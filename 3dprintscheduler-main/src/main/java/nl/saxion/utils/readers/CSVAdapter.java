@@ -28,7 +28,7 @@ public class CSVAdapter implements FileReader{
             }
 
             return jsonArray;
-        } catch (CsvException | CsvException e) {
+        } catch (CsvException e) {
             throw new IOException("Error reading CSV file");
         }
     }
