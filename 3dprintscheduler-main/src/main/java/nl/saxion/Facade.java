@@ -37,8 +37,6 @@ public class Facade {
         printTaskManager = PrintTaskManager.getInstance();
         spoolManager = SpoolManager.getInstance();
 
-
-
         Reader fileReader = new Reader();
         List<Print> prints = fileReader.readPrintsFromFile("prints.json");
         List<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
@@ -90,39 +88,9 @@ public class Facade {
         printTaskManager.addPrintTask(printName,colors,filamentType);
     }
     public void addNewPrintTask() {
-        try {
-            System.out.println("---------- New Print Task ----------");
-            List<String> colors = new ArrayList<>();
-//            TODO: color is een lege arraylist. dit kan niet. vervang met een keuze menu.
-            List<Print> prints = printManager.getPrints();
-            if (prints.isEmpty()) {
-                System.out.println("no available prints");
-                return;
-            }
-            IntStream.range(0, prints.size())
-                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
-
-            System.out.print("- Print number: ");
-            int printNumber = numberInput(1, prints.size());
-
-            Print print = prints.get(printNumber - 1);
-
-            System.out.println("---------- Filament Type ----------");
-            System.out.println("- 1: PLA");
-            System.out.println("- 2: PETG");
-            System.out.println("- 3: ABS");
-            System.out.print("- Filament type number: ");
-            int filamentType = numberInput(1, 3);
-            FilamentType type = switch (filamentType) {
-                case 2 -> FilamentType.PETG;
-                case 3 -> FilamentType.ABS;
-                default -> FilamentType.PLA;
-            };
-            addPrintTask(print.getName(), colors, type);
-            System.out.println("----------------------------");
-        } catch (PrintError e) {
-            System.out.println(e.getMessage());
-        }
+        // TODO: color is een lege arraylist. dit kan niet. vervang met een keuze menu.
+        System.out.println("Adding printers...");
+        printTaskManager.addNewPrintTask();
     }
 
 
