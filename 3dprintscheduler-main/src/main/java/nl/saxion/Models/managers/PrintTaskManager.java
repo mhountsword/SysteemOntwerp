@@ -15,12 +15,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class PrintTaskManager {
+import static nl.saxion.utils.NumberInput.numberInput;
 
+public class PrintTaskManager {
     private final static PrinterManager printerManager = PrinterManager.getInstance();
     private final static PrintManager printManager = PrintManager.getInstance();
     private final static SpoolManager spoolManager = SpoolManager.getInstance();
-
     private final List<PrintTask> pendingPrintTasks = new ArrayList<>();
     private final List<Printer> freePrinters = printerManager.getFreePrinters();
     private final List<Spool> freeSpools = spoolManager.getFreeSpools();
@@ -128,7 +128,6 @@ public class PrintTaskManager {
     public void addNewPrintTask() {
         try {
             System.out.println("---------- New Print Task ----------");
-            List<String> colors = new ArrayList<>();
             List<Print> prints = printManager.getPrints();
             if (prints.isEmpty()) {
                 System.out.println("no available prints");
@@ -138,7 +137,7 @@ public class PrintTaskManager {
                     .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
 
             System.out.print("- Print number: ");
-            int printNumber = NumberInput.numberInput(1, prints.size());
+            int printNumber = numberInput(1, prints.size());
 
             Print print = prints.get(printNumber - 1);
 
@@ -147,12 +146,27 @@ public class PrintTaskManager {
             System.out.println("- 2: PETG");
             System.out.println("- 3: ABS");
             System.out.print("- Filament type number: ");
-            int filamentType = NumberInput.numberInput(1, 3);
+            int filamentType = numberInput(1, 3);
             FilamentType type = switch (filamentType) {
                 case 2 -> FilamentType.PETG;
                 case 3 -> FilamentType.ABS;
                 default -> FilamentType.PLA;
             };
+
+          List<Spool> spools = spoolManager.getFilteredSpools(type);
+            for (int i = 0; i < spools.size(); i++) {
+                System.out.println((i + 1) + ". " + spools.get(i).getColor());
+            }
+            List<String> colors = new ArrayList<>();
+            for (int i = 0; i < print.getFilamentLength().size(); i++) {
+                System.out.print("- Color number: ");
+                int colorNumber = numberInput(1, spools.size());
+                if (colorNumber < 1 || colorNumber > spools.size()) {
+                    throw new PrintError("invalid color number");
+                }
+                Spool spool = spools.get(colorNumber - 1);
+                colors.add(spool.getColor());
+            }
             addPrintTask(print.getName(), colors, type);
             System.out.println("----------------------------");
         } catch (PrintError e) {

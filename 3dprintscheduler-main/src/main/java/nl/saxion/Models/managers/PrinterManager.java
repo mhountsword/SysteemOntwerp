@@ -1,8 +1,6 @@
 package nl.saxion.Models.managers;
-
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.utils.PrinterFactory;
-
 import java.util.*;
 
 public class PrinterManager {

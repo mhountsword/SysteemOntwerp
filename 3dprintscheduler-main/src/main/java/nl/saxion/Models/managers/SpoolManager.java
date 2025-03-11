@@ -1,5 +1,6 @@
 package nl.saxion.Models.managers;
 
+import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.spools.Spool;
 
 import java.util.ArrayList;
@@ -29,6 +30,36 @@ public class SpoolManager {
         spools.forEach(spool -> System.out.println(spool.toString()));
         System.out.println("--------------------------------------");
     }
+
+
+
+    public List<Spool> findMatchingSpools(List<String> colors, FilamentType filamentType) {
+        List<Spool> matched = new ArrayList<>();
+        for (String color : colors) {
+            List<Spool> matchingSpools = freeSpools.stream()
+                    .filter(spool -> spool.getColor().equals(color) && spool.getFilamentType().equals(filamentType) && spool.getLength() > 0)
+                    .toList();
+            matched.addAll(matchingSpools);
+        }
+        return matched;
+    }
+    public List<Spool> getFilteredSpools(FilamentType type) {
+        List<Spool> filteredSpools = new ArrayList<>();
+        for (Spool spool : spools) {
+            if (spool.getFilamentType().equals(type)) {
+                filteredSpools.add(spool);
+            }
+        }
+        return filteredSpools;
+    }
+
+    public void getcolor(){
+        spools.stream()
+                .map(Spool::getColor) // Extract colors
+                .distinct()           // Keep only unique ones
+                .forEach(System.out::println);
+    }
+
 
     public static SpoolManager getInstance() {
         if (instance == null) {
