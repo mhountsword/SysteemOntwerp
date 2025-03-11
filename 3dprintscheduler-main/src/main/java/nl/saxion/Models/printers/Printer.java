@@ -58,6 +58,10 @@ public abstract class Printer {
 
     public abstract boolean printFits(Print print);
 
+    public int getMaxColors(Printer printer) {
+        return (printer instanceof MultiColor) ? ((MultiColor) printer).getMaxColors() : 1;
+    }
+
     @Override
     public String toString() {
         return "--------" + System.lineSeparator() +

@@ -1,19 +1,14 @@
 package nl.saxion;
 
-import nl.saxion.Models.managers.PrintManager;
-import nl.saxion.Models.managers.PrintTaskManager;
-import nl.saxion.Models.managers.PrinterManager;
-import nl.saxion.Models.managers.SpoolManager;
+import nl.saxion.Models.managers.*;
 import nl.saxion.Models.printers.*;
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.prints.PrintTask;
 import nl.saxion.Models.spools.Spool;
-import nl.saxion.utils.Reader;
 import nl.saxion.exceptions.PrintError;
-
+import nl.saxion.utils.readers.Reader;
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class Facade {
 //    TODO: er zit te veel business logic in de facade.
@@ -21,13 +16,10 @@ public class Facade {
     private final PrintManager printManager;
     private final PrintTaskManager printTaskManager;
     private final SpoolManager spoolManager;
+    private final StrategyManager strategyManager;
     private String printStrategy = "Less Spool Changes";
     private final Scanner scanner = new Scanner(System.in);
     private static Facade instance;
-
-    private int getMaxColors(Printer printer) {
-        return (printer instanceof MultiColor) ? ((MultiColor) printer).getMaxColors() : 1;
-    }
 
 
 
@@ -36,6 +28,7 @@ public class Facade {
         printManager = PrintManager.getInstance();
         printTaskManager = PrintTaskManager.getInstance();
         spoolManager = SpoolManager.getInstance();
+        strategyManager = StrategyManager.getInstance();
 
         Reader fileReader = new Reader();
         List<Print> prints = fileReader.readPrintsFromFile("prints.json");
@@ -53,23 +46,12 @@ public class Facade {
                 printer.getMaxX(),
                 printer.getMaxY(),
                 printer.getMaxZ(),
-                getMaxColors(printer)
+                printer.getMaxColors(printer)
         ));
     }
 
     public void changePrintStrategy() {
-        System.out.println("---------- Change Strategy -------------");
-        System.out.println("- Current strategy: " +getCurrentStrategy());
-        System.out.println("- 1: Less Spool Changes");
-        System.out.println("- 2: Efficient Spool Usage");
-        System.out.print("- Choose strategy: ");
-        int strategyChoice = numberInput(1, 2);
-        System.out.println("-----------------------------------");
-        if (strategyChoice == 1) {
-            printStrategy = "Less Spool Changes";
-        } else if (strategyChoice == 2) {
-            printStrategy = "Efficient Spool Usage";
-        }
+        strategyManager.changePrintStrategy();
     }
 
     public void registerPrintCompletion() {
@@ -89,17 +71,17 @@ public class Facade {
     }
     public void addNewPrintTask() {
         // TODO: color is een lege arraylist. dit kan niet. vervang met een keuze menu.
-        System.out.println("Adding printers...");
         printTaskManager.addNewPrintTask();
     }
-
-
 
     public void startPrintQueue() {
         System.out.println("---------- Starting Print Queue ----------");
         printTaskManager.startQueue();
         System.out.println("-----------------------------------");
+    }
 
+    public void showPendingPrintTasks() {
+        printTaskManager.printPendingPrintTasks();
     }
 
     public void showPrinters() {
@@ -114,25 +96,6 @@ public class Facade {
         spoolManager.printSpools();
     }
 
-    public PrintTask getPrinterCurrentTask(Printer printer) {
-        return printTaskManager.getPrinterCurrentTask(printer);
-    }
-
-    public void showPendingPrintTasks() {
-        printTaskManager.printPendingPrintTasks();
-    }
-
-    public String getCurrentStrategy() {
-        return printStrategy;
-    }
-
-    public int numberInput(int min, int max) {
-        int input = scanner.nextInt();
-        while (input < min || input > max) {
-            input = scanner.nextInt();
-        }
-        return input;
-    }
 
     private int getPrinterType(Printer printer) {
         return switch (printer) {
