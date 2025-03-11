@@ -1,13 +1,15 @@
 package nl.saxion;
 
+import nl.saxion.Models.managers.PrintManager;
 import nl.saxion.Models.managers.PrintTaskManager;
 import nl.saxion.Models.managers.PrinterManager;
+import nl.saxion.Models.managers.SpoolManager;
 import nl.saxion.Models.printers.*;
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.prints.PrintTask;
 import nl.saxion.Models.spools.Spool;
-import nl.saxion.Models.utils.Reader;
+import nl.saxion.utils.Reader;
 import nl.saxion.exceptions.PrintError;
 
 import java.util.*;
@@ -15,25 +17,35 @@ import java.util.stream.IntStream;
 
 public class Facade {
 //    TODO: er zit te veel business logic in de facade.
-    private final PrinterManager printerManager = PrinterManager.getInstance();
-    private final PrintTaskManager printTaskManager = new PrintTaskManager();
+    private final PrinterManager printerManager;
+    private final PrintManager printManager;
+    private final PrintTaskManager printTaskManager;
+    private final SpoolManager spoolManager;
     private String printStrategy = "Less Spool Changes";
     private final Scanner scanner = new Scanner(System.in);
-
+    private static Facade instance;
 
     private int getMaxColors(Printer printer) {
         return (printer instanceof MultiColor) ? ((MultiColor) printer).getMaxColors() : 1;
     }
 
-    public void initialize() {
+
+
+    private Facade() {
+        printerManager = PrinterManager.getInstance();
+        printManager = PrintManager.getInstance();
+        printTaskManager = PrintTaskManager.getInstance();
+        spoolManager = SpoolManager.getInstance();
+
+
+
         Reader fileReader = new Reader();
         List<Print> prints = fileReader.readPrintsFromFile("prints.json");
         List<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
         List<Printer> printers = fileReader.readPrintersFromFile("printers.json");
 
-       spools.forEach(printerManager::addSpool);
-
-        prints.forEach(printerManager::addPrint);
+        spools.forEach(spoolManager::addSpool);
+        prints.forEach(printManager::addPrint);
 
         printers.forEach(printer -> printerManager.addPrinter(
                 printer.getId(),
@@ -63,6 +75,9 @@ public class Facade {
     }
 
     public void registerPrintCompletion() {
+        System.out.println("---------- Register Print Completion ----------");
+        System.out.print("- Printer ID: ");
+        System.out.println("-------------------------------------------");
         int printerId = scanner.nextInt();
         try {
             printTaskManager.registerPrintCompletion(printerId);
@@ -78,13 +93,13 @@ public class Facade {
         try {
             System.out.println("---------- New Print Task ----------");
             List<String> colors = new ArrayList<>();
-            List<Print> prints = printerManager.getPrints();
+            List<Print> prints = printManager.getPrints();
             if (prints.isEmpty()) {
                 System.out.println("no available prints");
                 return;
             }
             IntStream.range(0, prints.size())
-                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
+                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).name()));
 
             System.out.print("- Print number: ");
             int printNumber = numberInput(1, prints.size());
@@ -102,7 +117,7 @@ public class Facade {
                 case 3 -> FilamentType.ABS;
                 default -> FilamentType.PLA;
             };
-            addPrintTask(print.getName(), colors, type);
+            addPrintTask(print.name(), colors, type);
             System.out.println("----------------------------");
         } catch (PrintError e) {
             System.out.println(e.getMessage());
@@ -123,11 +138,11 @@ public class Facade {
     }
 
     public void showPrints() {
-        printerManager.printPrints();
+        printManager.printPrints();
     }
 
     public void showSpools() {
-        printerManager.printSpools();
+        spoolManager.printSpools();
     }
 
     public PrintTask getPrinterCurrentTask(Printer printer) {
@@ -157,5 +172,12 @@ public class Facade {
             case StandardFDM standardFDM -> 1;
             default -> -1;
         };
+    }
+
+    public static Facade getInstance() {
+        if (instance == null) {
+            instance = new Facade();
+        }
+        return instance;
     }
 }

@@ -17,11 +17,14 @@ import java.util.stream.IntStream;
 public class PrintTaskManager {
 
     private final static PrinterManager printerManager = PrinterManager.getInstance();
+    private final static PrintManager printManager = PrintManager.getInstance();
+    private final static SpoolManager spoolManager = SpoolManager.getInstance();
 
     private final List<PrintTask> pendingPrintTasks = new ArrayList<>();
     private final List<Printer> freePrinters = printerManager.getFreePrinters();
-    private final List<Spool> freeSpools = printerManager.getFreeSpools();
+    private final List<Spool> freeSpools = spoolManager.getFreeSpools();
     private final Map<Printer, PrintTask> runningPrintTasks = new HashMap<>();
+    private static PrintTaskManager instance;
 
 
     public void selectPrintTask(Printer printer) {
@@ -31,10 +34,10 @@ public class PrintTaskManager {
         if(spools[0] != null) {
             label:
             for (PrintTask printTask : pendingPrintTasks) {
-                if (printer.printFits(printTask.getPrint())) {
+                if (printer.printFits(printTask.print())) {
                     switch (printer) {
-                        case StandardFDM standardFDM when printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() == 1 -> {
-                            if (spools[0].spoolMatch(printTask.getColors().getFirst(), printTask.getFilamentType())) {
+                        case StandardFDM standardFDM when printTask.filamentType() != FilamentType.ABS && printTask.colors().size() == 1 -> {
+                            if (spools[0].spoolMatch(printTask.colors().getFirst(), printTask.filamentType())) {
                                 runningPrintTasks.put(printer, printTask);
                                 freePrinters.remove(printer);
                                 chosenTask = printTask;
@@ -42,8 +45,8 @@ public class PrintTaskManager {
                             }
                             // The housed printer is the only one that can print ABS, but it can also print the others.
                         }
-                        case HousedPrinter housedPrinter when printTask.getColors().size() == 1 -> {
-                            if (spools[0].spoolMatch(printTask.getColors().getFirst(), printTask.getFilamentType())) {
+                        case HousedPrinter housedPrinter when printTask.colors().size() == 1 -> {
+                            if (spools[0].spoolMatch(printTask.colors().getFirst(), printTask.filamentType())) {
                                 runningPrintTasks.put(printer, printTask);
                                 freePrinters.remove(printer);
                                 chosenTask = printTask;
@@ -51,10 +54,10 @@ public class PrintTaskManager {
                             }
                             // For multicolor the order of spools does matter, so they have to match.
                         }
-                        case MultiColor multiColor when printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() <= multiColor.getMaxColors() -> {
+                        case MultiColor multiColor when printTask.filamentType() != FilamentType.ABS && printTask.colors().size() <= multiColor.getMaxColors() -> {
                             boolean printWorks = true;
-                            for (int i = 0; i < spools.length && i < printTask.getColors().size(); i++) {
-                                if (!spools[i].spoolMatch(printTask.getColors().get(i), printTask.getFilamentType())) {
+                            for (int i = 0; i < spools.length && i < printTask.colors().size(); i++) {
+                                if (!spools[i].spoolMatch(printTask.colors().get(i), printTask.filamentType())) {
                                     printWorks = false;
                                 }
                             }
@@ -77,25 +80,25 @@ public class PrintTaskManager {
         } else {
             // If we didn't find a print for the current spool we search for a print with the free spools.
             for(PrintTask printTask: pendingPrintTasks) {
-                if(printer.printFits(printTask.getPrint()) && getPrinterCurrentTask(printer) == null) {
+                if(printer.printFits(printTask.print()) && getPrinterCurrentTask(printer) == null) {
                     switch (printer) {
-                        case StandardFDM standardFDM when printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() == 1 -> {
+                        case StandardFDM standardFDM when printTask.filamentType() != FilamentType.ABS && printTask.colors().size() == 1 -> {
                             chosenTask = getPrintTask(printer,  printTask);
                         }
-                        case HousedPrinter housedPrinter when printTask.getColors().size() == 1 -> {
+                        case HousedPrinter housedPrinter when printTask.colors().size() == 1 -> {
                             chosenTask = getPrintTask(printer, printTask);
                         }
-                        case MultiColor multiColor when printTask.getFilamentType() != FilamentType.ABS && printTask.getColors().size() <= multiColor.getMaxColors() -> {
+                        case MultiColor multiColor when printTask.filamentType() != FilamentType.ABS && printTask.colors().size() <= multiColor.getMaxColors() -> {
                             ArrayList<Spool> chosenSpools = new ArrayList<>();
-                            for (int i = 0; i < printTask.getColors().size(); i++) {
+                            for (int i = 0; i < printTask.colors().size(); i++) {
                                 for (Spool spool : freeSpools) {
-                                    if (spool.spoolMatch(printTask.getColors().get(i), printTask.getFilamentType()) && !containsSpool(chosenSpools, printTask.getColors().get(i))) {
+                                    if (spool.spoolMatch(printTask.colors().get(i), printTask.filamentType()) && !containsSpool(chosenSpools, printTask.colors().get(i))) {
                                         chosenSpools.add(spool);
                                     }
                                 }
                             }
                             // We assume that if they are the same length that there is a match.
-                            if (chosenSpools.size() == printTask.getColors().size()) {
+                            if (chosenSpools.size() == printTask.colors().size()) {
                                 runningPrintTasks.put(printer, printTask);
                                 freeSpools.addAll(Arrays.asList(printer.getCurrentSpools()));
                                 printer.setCurrentSpools(chosenSpools);
@@ -127,7 +130,7 @@ public class PrintTaskManager {
     private PrintTask getPrintTask(Printer printer, PrintTask printTask) {
         // Find the first matching spool
         Spool chosenSpool = freeSpools.stream()
-                .filter(spool -> spool.spoolMatch(printTask.getColors().getFirst(), printTask.getFilamentType()))
+                .filter(spool -> spool.spoolMatch(printTask.colors().getFirst(), printTask.filamentType()))
                 .findFirst()
                 .orElse(null);
 
@@ -138,7 +141,7 @@ public class PrintTaskManager {
         freeSpools.add(printer.getCurrentSpools()[0]); // Store the old spool back into freeSpools
         System.out.println("- Spool change: Please place spool " + chosenSpool.getId() + " in printer " + printer.getName());
         freeSpools.remove(chosenSpool);
-        ((StandardFDM) printer).setCurrentSpool(chosenSpool);
+        printer.setCurrentSpool(chosenSpool);
         freePrinters.remove(printer);
 
         return printTask;
@@ -175,14 +178,14 @@ public class PrintTaskManager {
     }
 
     public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
-        Print print = Optional.ofNullable(printerManager.findPrint(printName))
+        Print print = Optional.ofNullable(printManager.findPrint(printName))
                 .orElseThrow(() -> new PrintError("Could not find print with name " + printName));
 
         if (colors.isEmpty()) {
             throw new PrintError("no colors available");
         }
 
-        Set<String> availableColors = printerManager.getSpools().stream()
+        Set<String> availableColors = spoolManager.getSpools().stream()
                 .filter(spool -> spool.getFilamentType() == filamentType)
                 .map(Spool::getColor)
                 .collect(Collectors.toSet());
@@ -205,9 +208,9 @@ public class PrintTaskManager {
         System.out.println("Task " + task + " removed from printer " + printer.getName());
 
         List<Spool> spools = Arrays.asList(printer.getCurrentSpools());
-        List<Double> filamentLengths = task.getPrint().getFilamentLength();
+        List<Double> filamentLengths = task.print().filamentLength();
 
-        int minSize = Math.min(spools.size(), task.getColors().size());
+        int minSize = Math.min(spools.size(), task.colors().size());
 
         IntStream.range(0, minSize)
                 .forEach(i -> spools.get(i).reduceLength(filamentLengths.get(i)));
@@ -221,7 +224,10 @@ public class PrintTaskManager {
         System.out.println("--------------------------------------");
     }
 
-
-
-
+    public static PrintTaskManager getInstance() {
+        if (instance == null) {
+            instance = new PrintTaskManager();
+        }
+        return instance;
+    }
 }
