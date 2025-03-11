@@ -19,9 +19,7 @@ public class HousedPrinter extends Printer{
 
     @Override
     public Spool[] getCurrentSpools() {
-        Spool[] result = new Spool[1];
-        result[0] = getCurrentSpool();
-        return result;
+        return new Spool[]{getCurrentSpool()};
     }
 
     @Override

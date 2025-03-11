@@ -12,7 +12,7 @@ public class Main {
         new Main().run();
     }
 
-    public void run() throws PrintError {
+    public void run() throws {
         facade.initialize();  // Initialize everything using the Facade
         int choice = 1;
         while (choice > 0 && choice < 10) {
