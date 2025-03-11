@@ -11,13 +11,13 @@ public class PrintManager {
 
 
     public void addPrint(Print print) {
-        Print p = new Print(print.name(), print.height(), print.width(), print.length(), print.filamentLength(), print.printTime());
+        Print p = new Print(print.getName(), print.getHeight(), print.getWidth(), print.getLength(), print.getFilamentLength(), print.getPrintTime());
         prints.add(p);
     }
 
     public Print findPrint(String printName) {
         for (Print p : prints) {
-            if (p.name().equals(printName)) {
+            if (p.getName().equals(printName)) {
                 return p;
             }
         }

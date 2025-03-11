@@ -208,7 +208,7 @@ public class PrintTaskManager {
         System.out.println("Task " + task + " removed from printer " + printer.getName());
 
         List<Spool> spools = Arrays.asList(printer.getCurrentSpools());
-        List<Double> filamentLengths = task.print().filamentLength();
+        List<Double> filamentLengths = task.print().getFilamentLength();
 
         int minSize = Math.min(spools.size(), task.colors().size());
 

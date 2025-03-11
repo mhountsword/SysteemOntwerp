@@ -22,7 +22,7 @@ public class StandardFDM extends Printer {
 
     @Override
     public boolean printFits(Print print) {
-        return print.height() <= getMaxZ() && print.width() <= getMaxX() && print.length() <= getMaxY();
+        return print.getHeight() <= getMaxZ() && print.getWidth() <= getMaxX() && print.getLength() <= getMaxY();
     }
 
     @Override

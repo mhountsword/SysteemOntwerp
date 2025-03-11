@@ -99,7 +99,7 @@ public class Facade {
                 return;
             }
             IntStream.range(0, prints.size())
-                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).name()));
+                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
 
             System.out.print("- Print number: ");
             int printNumber = numberInput(1, prints.size());
@@ -117,7 +117,7 @@ public class Facade {
                 case 3 -> FilamentType.ABS;
                 default -> FilamentType.PLA;
             };
-            addPrintTask(print.name(), colors, type);
+            addPrintTask(print.getName(), colors, type);
             System.out.println("----------------------------");
         } catch (PrintError e) {
             System.out.println(e.getMessage());

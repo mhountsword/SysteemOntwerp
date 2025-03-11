@@ -6,14 +6,13 @@ import java.util.*;
 
 public class Main {
     Scanner scanner = new Scanner(System.in);
-    private final Facade facade = new Facade();
-
+    private final Facade facade = Facade.getInstance();
     public static void main(String[] args){
         new Main().run();
     }
 
     public void run(){
-        facade.initialize();  // Initialize everything using the Facade
+
         int choice = 1;
         while (choice > 0 && choice < 10) {
             menu();

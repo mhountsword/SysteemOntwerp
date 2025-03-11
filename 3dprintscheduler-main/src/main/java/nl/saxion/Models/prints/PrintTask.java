@@ -7,6 +7,6 @@ import java.util.List;
 public record PrintTask(Print print, List<String> colors, FilamentType filamentType) {
     @Override
     public String toString() {
-        return "< " + print.name() + " " + filamentType + " " + colors.toString() + " >";
+        return "< " + print.getName() + " " + filamentType + " " + colors.toString() + " >";
     }
 }
