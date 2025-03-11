@@ -15,7 +15,7 @@ public class CSVAdapter implements FileReader{
         CSVReader csvReader = new CSVReader(fileReader);
         try{
             List<String[]> records = csvReader.readAll();
-            String[] headers = records.get(0);
+            String[] headers = records.getFirst();
             JSONArray jsonArray = new JSONArray();
 
             for (int i = 1; i < records.size(); i++) {
@@ -28,7 +28,7 @@ public class CSVAdapter implements FileReader{
             }
 
             return jsonArray;
-        } catch (CsvException e) {
+        } catch (CsvException | CsvException e) {
             throw new IOException("Error reading CSV file");
         }
     }
