@@ -1,4 +1,4 @@
-package nl.saxion.utils;
+package nl.saxion.utils.readers;
 
 import org.json.simple.JSONArray;
 import java.io.IOException;

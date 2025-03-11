@@ -9,6 +9,7 @@ import nl.saxion.Models.prints.PrintTask;
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.spools.Spool;
 import nl.saxion.exceptions.PrintError;
+import nl.saxion.utils.NumberInput;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,6 +122,41 @@ public class PrintTaskManager {
                 pendingPrintTasks.remove(chosenTask);
                 System.out.println("- Started task: " + chosenTask + " on printer " + printer.getName());
             }
+        }
+    }
+
+    public void addNewPrintTask() {
+        try {
+            System.out.println("---------- New Print Task ----------");
+            List<String> colors = new ArrayList<>();
+            List<Print> prints = printManager.getPrints();
+            if (prints.isEmpty()) {
+                System.out.println("no available prints");
+                return;
+            }
+            IntStream.range(0, prints.size())
+                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
+
+            System.out.print("- Print number: ");
+            int printNumber = NumberInput.numberInput(1, prints.size());
+
+            Print print = prints.get(printNumber - 1);
+
+            System.out.println("---------- Filament Type ----------");
+            System.out.println("- 1: PLA");
+            System.out.println("- 2: PETG");
+            System.out.println("- 3: ABS");
+            System.out.print("- Filament type number: ");
+            int filamentType = NumberInput.numberInput(1, 3);
+            FilamentType type = switch (filamentType) {
+                case 2 -> FilamentType.PETG;
+                case 3 -> FilamentType.ABS;
+                default -> FilamentType.PLA;
+            };
+            addPrintTask(print.getName(), colors, type);
+            System.out.println("----------------------------");
+        } catch (PrintError e) {
+            System.out.println(e.getMessage());
         }
     }
 

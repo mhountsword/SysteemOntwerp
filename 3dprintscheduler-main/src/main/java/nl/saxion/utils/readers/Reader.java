@@ -1,9 +1,10 @@
-package nl.saxion.utils;
+package nl.saxion.utils.readers;
 
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.spools.Spool;
+import nl.saxion.utils.PrinterFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
