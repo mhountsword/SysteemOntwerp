@@ -3,12 +3,12 @@ package nl.saxion.Models.prints;
 import java.util.ArrayList;
 
 public class Print {
-    private String name;
-    private int height;
-    private int width;
-    private int length;
-    private ArrayList<Double> filamentLength;
-    private int printTime;
+    private final String name;
+    private final int height;
+    private final int width;
+    private final int length;
+    private final ArrayList<Double> filamentLength;
+    private final int printTime;
 
     public Print(String name, int height, int width, int length, ArrayList<Double> filamentLength, int printTime) {
         this.name = name;
