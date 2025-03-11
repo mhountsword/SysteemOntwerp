@@ -93,6 +93,7 @@ public class Facade {
         try {
             System.out.println("---------- New Print Task ----------");
             List<String> colors = new ArrayList<>();
+//            TODO: color is een lege arraylist. dit kan niet. vervang met een keuze menu.
             List<Print> prints = printManager.getPrints();
             if (prints.isEmpty()) {
                 System.out.println("no available prints");
