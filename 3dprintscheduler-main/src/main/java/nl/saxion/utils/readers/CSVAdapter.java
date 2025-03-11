@@ -1,4 +1,4 @@
-package nl.saxion.utils.readers;
+package nl.saxion.utils;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -9,7 +9,7 @@ import org.json.simple.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
-public class CSVAdapter implements FileReader {
+public class CSVAdapter implements FileReader{
     @Override @SuppressWarnings("unchecked")
     public JSONArray readFile(String filePath) throws IOException {
         java.io.FileReader fileReader = new java.io.FileReader(filePath);

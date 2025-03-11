@@ -37,7 +37,7 @@ public class Reader {
                 prints.add(newPrint);
             }
         } catch (IOException | ParseException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         return prints;
     }
@@ -60,7 +60,7 @@ public class Reader {
                 printers.add(newPrinter);
             }
         } catch (IOException | ParseException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         return printers;
     }
@@ -82,7 +82,7 @@ public class Reader {
                 spools.add(parseSpool((JSONObject) spoolObject));
             }
         } catch (IOException | ParseException e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
         return spools;
     }
