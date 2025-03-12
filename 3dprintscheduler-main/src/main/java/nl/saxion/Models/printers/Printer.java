@@ -3,9 +3,9 @@ package nl.saxion.Models.printers;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.spools.Spool;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public abstract class Printer {
+public class Printer {
     private final int id;
     private final String name;
     private final String manufacturer;
@@ -13,16 +13,6 @@ public abstract class Printer {
     private final int maxY;
     private final int maxZ;
     private Spool currentSpool;
-
-//    "id": 1,
-//    "type": 1,
-//    "name": "Enterprise",
-//    "model": "Ender 3",
-//    "manufacturer": "Creality",
-//    "maxX": 220,
-//    "maxY": 220,
-//    "maxZ": 250,
-//    "maxColors": 1
 
     public Printer(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ) {
         this.id = id;
@@ -42,7 +32,9 @@ public abstract class Printer {
         this.maxZ = Integer.parseInt(values[7]);
     }
 
-    public abstract int CalculatePrintTime(String filename);
+    public int CalculatePrintTime(String filename){
+        return 0;
+    }
 
     public Spool getCurrentSpool() {
         return currentSpool;
@@ -52,11 +44,17 @@ public abstract class Printer {
         this.currentSpool = currentSpool;
     }
 
-    public abstract Spool[] getCurrentSpools();
+    public List<Spool> getCurrentSpools(){
+        return null;
+    }
 
-    public abstract void setCurrentSpools(ArrayList<Spool> spools);
+    public void setCurrentSpools(List<Spool> spools){
+        this.currentSpool = spools.getFirst();
+    }
 
-    public abstract boolean printFits(Print print);
+    public boolean printFits(Print print){
+        return print.getHeight() > getMaxZ() || print.getWidth() > getMaxX() || print.getLength() > getMaxY();
+    }
 
     public int getMaxColors(Printer printer) {
         return (printer instanceof MultiColor) ? ((MultiColor) printer).getMaxColors() : 1;

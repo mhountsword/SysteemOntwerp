@@ -22,7 +22,7 @@ public class SpoolManager {
     }
 
     public List<Spool> getFreeSpools() {
-        return new ArrayList<>(freeSpools);
+        return freeSpools;
     }
 
     public void printSpools(){

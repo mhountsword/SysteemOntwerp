@@ -4,6 +4,7 @@ import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.spools.Spool;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /* Printer capable of printing multiple colors. */
 public class MultiColor extends Printer {
@@ -18,12 +19,12 @@ public class MultiColor extends Printer {
     }
 
     @Override
-    public Spool[] getCurrentSpools() {
-        Spool[] spools = new Spool[4];
-        spools[0] = getCurrentSpool();
-        spools[1] = spool2;
-        spools[2] = spool3;
-        spools[3] = spool4;
+    public List<Spool> getCurrentSpools() {
+        List<Spool> spools = new ArrayList<>();
+        spools.add(getCurrentSpool());
+        if(spool2 != null) spools.add(spool2);
+        if(spool3 != null) spools.add(spool3);
+        if(spool4 != null) spools.add(spool4);
         return spools;
     }
     public int getMaxColors() {
@@ -36,18 +37,6 @@ public class MultiColor extends Printer {
         if(spools.size() > 2) spool3 = spools.get(2);
         if(spools.size() > 3) spool4 = spools.get(3);
     }
-
-    @Override
-    public boolean printFits(Print print) {
-        return print.getHeight() <= getMaxZ() && print.getWidth() <= getMaxX() && print.getLength() <= getMaxY();
-    }
-
-    @Override
-    public int CalculatePrintTime(String filename) {
-        return 0;
-    }
-
-
 
     @Override
     public String toString() {

@@ -4,6 +4,7 @@ import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.spools.Spool;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HousedPrinter extends Printer{
 
@@ -13,22 +14,9 @@ public class HousedPrinter extends Printer{
     }
 
     @Override
-    public int CalculatePrintTime(String filename) {
-        return 0;
-    }
-
-    @Override
-    public Spool[] getCurrentSpools() {
-        return new Spool[]{getCurrentSpool()};
-    }
-
-    @Override
-    public void setCurrentSpools(ArrayList<Spool> spools) {
-
-    }
-
-    @Override
-    public boolean printFits(Print print) {
-        return print.getHeight() <= getMaxZ() && print.getWidth() <= getMaxX() && print.getLength() <= getMaxY();
+    public List<Spool> getCurrentSpools() {
+        List<Spool> spools = new ArrayList<>();
+        spools.add(getCurrentSpool());
+        return spools;
     }
 }

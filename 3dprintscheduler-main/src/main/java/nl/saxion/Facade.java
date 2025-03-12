@@ -17,7 +17,6 @@ public class Facade {
     private final PrintTaskManager printTaskManager;
     private final SpoolManager spoolManager;
     private final StrategyManager strategyManager;
-    private String printStrategy = "Less Spool Changes";
     private final Scanner scanner = new Scanner(System.in);
     private static Facade instance;
 
@@ -66,11 +65,7 @@ public class Facade {
         }
     }
 
-    public void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
-        printTaskManager.addPrintTask(printName,colors,filamentType);
-    }
     public void addNewPrintTask() {
-        // TODO: color is een lege arraylist. dit kan niet. vervang met een keuze menu.
         printTaskManager.addNewPrintTask();
     }
 

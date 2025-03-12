@@ -1,10 +1,24 @@
 package nl.saxion.Models.managers;
 
+import nl.saxion.Models.printers.Printer;
+import nl.saxion.Models.strategy.DefaultStrategy;
+import nl.saxion.Models.strategy.EfficientStrategy;
+import nl.saxion.Models.strategy.PrintStrategyInterface;
+import nl.saxion.Models.strategy.Strategy;
 import nl.saxion.utils.NumberInput;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class StrategyManager {
     private static StrategyManager instance;
-    private String printStrategy = "Less Spool Changes";
+    private Strategy printStrategy = Strategy.DEFAULT; // Initalize on default printing strategy
+    private final HashMap<Strategy, PrintStrategyInterface> printStrategies = new HashMap<>();
+
+    public StrategyManager() {
+        printStrategies.put(Strategy.DEFAULT, new DefaultStrategy());
+        printStrategies.put(Strategy.EFFICIENT, new EfficientStrategy());
+    }
 
     public void changePrintStrategy() {
         System.out.println("---------- Change Strategy -------------");
@@ -15,9 +29,17 @@ public class StrategyManager {
         int strategyChoice = NumberInput.numberInput(1, 2);
         System.out.println("-----------------------------------");
         if (strategyChoice == 1) {
-            printStrategy = "Less Spool Changes";
+            printStrategy = Strategy.DEFAULT;
+            System.out.println("Print strategy selected: Less Spool Changes");
         } else if (strategyChoice == 2) {
-            printStrategy = "Efficient Spool Usage";
+            printStrategy = Strategy.EFFICIENT;
+            System.out.println("Print strategy selected: Efficient Spool Usage");
+        }
+    }
+
+    public void startPrinting(List<Printer> printers) {
+        for(Printer printer : printers) {
+            printStrategies.get(this.printStrategy).assignTasksToPrinters(printer);
         }
     }
 
