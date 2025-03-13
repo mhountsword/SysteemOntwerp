@@ -40,25 +40,17 @@ public class MultiColor extends Printer {
 
     @Override
     public String toString() {
-        String result = super.toString();
-        String[] resultArray = result.split("- ");
-        String spools = resultArray[resultArray.length-1];
-        if(spool2 != null) {
-            spools = spools.replace(System.lineSeparator(), ", " + spool2.getId() + System.lineSeparator());
-        }
-        if(spool3 != null) {
-            spools = spools.replace(System.lineSeparator(), ", " + spool3.getId() + System.lineSeparator());
-        }
-        if(spool4 != null) {
-            spools = spools.replace(System.lineSeparator(), ", " + spool4.getId() + System.lineSeparator());
-        }
-        spools = spools.replace("--------", "- maxColors: " + maxColors + System.lineSeparator() +
-               "--------");
-        resultArray[resultArray.length-1] = spools;
-        result = String.join("- ", resultArray);
+        List<Spool> currentSpools = this.getCurrentSpools();
+        StringBuilder sb = new StringBuilder();
 
-        return result;
+        sb.append(super.toString());
+        sb.append("Max Colors: ").append(maxColors).append("\n");
+        if(!currentSpools.isEmpty() && currentSpools.getFirst() != null) {
+            sb.append("Current Spools:\n");
+            for (Spool spool : currentSpools) {
+                sb.append(spool.toString()).append("\n");
+            }
+        }
+        return sb.toString();
     }
-
-
 }

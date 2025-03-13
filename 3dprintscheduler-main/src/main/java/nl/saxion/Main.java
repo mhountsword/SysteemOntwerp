@@ -12,7 +12,6 @@ public class Main {
     }
 
     public void run(){
-
         int choice = 1;
         while (choice > 0 && choice < 10) {
             menu();

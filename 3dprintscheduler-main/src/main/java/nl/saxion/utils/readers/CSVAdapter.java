@@ -1,4 +1,4 @@
-package nl.saxion.utils;
+package nl.saxion.utils.readers;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;

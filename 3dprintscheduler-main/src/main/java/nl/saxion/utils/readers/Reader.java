@@ -99,7 +99,7 @@ public class Reader {
 
         // Delegate printer creation based on type
         int type = parseInt(printerJson.get("type"));
-        return printerFactory.createPrinterByType(type, id, name, manufacturer, maxX, maxY, maxZ, maxColors);
+        return printerFactory.createPrinterByType(id, type, name, manufacturer, maxX, maxY, maxZ, maxColors);
     }
 
     private Print parsePrint(JSONObject p) {

@@ -36,17 +36,17 @@ public class Facade {
 
         spools.forEach(spoolManager::addSpool);
         prints.forEach(printManager::addPrint);
-
-        printers.forEach(printer -> printerManager.addPrinter(
-                printer.getId(),
-                getPrinterType(printer),
-                printer.getName(),
-                printer.getManufacturer(),
-                printer.getMaxX(),
-                printer.getMaxY(),
-                printer.getMaxZ(),
-                printer.getMaxColors(printer)
-        ));
+        for(Printer printer : printers) {
+            printerManager.addPrinter(
+                    printer.getId(),
+                    getPrinterType(printer),
+                    printer.getName(),
+                    printer.getManufacturer(),
+                    printer.getMaxX(),
+                    printer.getMaxY(),
+                    printer.getMaxZ(),
+                    printer.getMaxColors(printer));
+        }
     }
 
     public void changePrintStrategy() {
@@ -91,12 +91,11 @@ public class Facade {
         spoolManager.printSpools();
     }
 
-
     private int getPrinterType(Printer printer) {
         return switch (printer) {
+            case StandardFDM standardFDM -> 1;
             case HousedPrinter housedPrinter -> 2;
             case MultiColor multiColor -> 3;
-            case StandardFDM standardFDM -> 1;
             default -> -1;
         };
     }

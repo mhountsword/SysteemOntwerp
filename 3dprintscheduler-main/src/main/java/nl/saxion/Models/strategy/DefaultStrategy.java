@@ -47,10 +47,6 @@ public class DefaultStrategy implements PrintStrategyInterface {
         }
     }
 
-    public void selectPrintTask(Printer printer) {
-
-    }
-
     private PrintTask tryAssignTaskWithCurrentSpools(Printer printer, List<Spool> currentSpools) {
         for (PrintTask task : pendingPrintTasks) {
             if (printer.printFits(task.print())) continue;

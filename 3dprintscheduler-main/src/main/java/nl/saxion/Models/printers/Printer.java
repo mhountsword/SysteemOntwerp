@@ -65,8 +65,7 @@ public class Printer {
         return "--------" + System.lineSeparator() +
                 "- ID: " + id + System.lineSeparator() +
                 "- Name: " + name + System.lineSeparator() +
-                "- Manufacturer: " + manufacturer + System.lineSeparator() +
-                "--------";
+                "- Manufacturer: " + manufacturer + System.lineSeparator();
     }
 
     public String getName() {

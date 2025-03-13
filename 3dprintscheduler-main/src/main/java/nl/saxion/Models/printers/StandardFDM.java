@@ -21,15 +21,16 @@ public class StandardFDM extends Printer {
 
     @Override
     public String toString() {
-        String result = super.toString();
-        String append = "- maxX: " + getMaxX() + System.lineSeparator() +
+        StringBuilder sb = new StringBuilder();
+        String printerDimensions = "- maxX: " + getMaxX() + System.lineSeparator() +
                 "- maxY: " + getMaxY() + System.lineSeparator() +
                 "- maxZ: " + getMaxZ() + System.lineSeparator();
         if (getCurrentSpool() != null) {
-            append += "- Spool(s): " + getCurrentSpool().getId() + System.lineSeparator();
+            printerDimensions += "- Spool(s): " + getCurrentSpool().getId() + System.lineSeparator();
         }
-        append += "--------";
-        result = result.replace("--------", append);
-        return result;
+        sb.append(super.toString());
+        sb.append(printerDimensions);
+
+        return sb.toString();
     }
 }

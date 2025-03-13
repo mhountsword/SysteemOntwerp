@@ -31,8 +31,10 @@ public class PrintTaskManager {
         try {
             System.out.println("---------- New Print Task ----------");
             List<Print> prints = printManager.getPrints();
+            List<String> colors = new ArrayList<>();
+
             if (prints.isEmpty()) {
-                System.out.println("no available prints");
+                System.err.println("Error: no prints found");
                 return;
             }
             IntStream.range(0, prints.size())
@@ -59,7 +61,6 @@ public class PrintTaskManager {
             for (int i = 0; i < spools.size(); i++) {
                 System.out.println((i + 1) + ". " + spools.get(i).getColor());
             }
-            List<String> colors = new ArrayList<>();
             for (int i = 0; i < print.getFilamentLength().size(); i++) {
                 System.out.print("- Color number: ");
                 int colorNumber = numberInput(1, spools.size());
@@ -133,6 +134,10 @@ public class PrintTaskManager {
         pendingPrintTasks.add(printTask);
     }
 
+    public void removePendingPrintTask(PrintTask printTask) {
+        pendingPrintTasks.remove(printTask);
+    }
+
     public void printPendingPrintTasks() {
         System.out.println("--------- Pending Print Tasks ---------");
         pendingPrintTasks.forEach(printTask -> System.out.println(printTask.toString()));
@@ -141,10 +146,6 @@ public class PrintTaskManager {
 
     public List<PrintTask> getPendingPrintTasks() {
         return pendingPrintTasks;
-    }
-
-    public void removePendingPrintTask(PrintTask printTask) {
-        pendingPrintTasks.remove(printTask);
     }
 
     public static PrintTaskManager getInstance() {
