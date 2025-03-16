@@ -1,14 +1,18 @@
 package nl.saxion;
 
 import nl.saxion.Models.managers.*;
+import nl.saxion.Models.observer.Updater;
 import nl.saxion.Models.printers.*;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.spools.Spool;
 import nl.saxion.exceptions.PrintError;
 import nl.saxion.utils.readers.Reader;
+
 import java.util.*;
 
-public class Facade {
+public class Facade implements Updater {
+    private int spoolchanges = 0;
+    private int totalprints = 0;
     private final PrinterManager printerManager;
     private final PrintManager printManager;
     private final PrintTaskManager printTaskManager;
@@ -22,7 +26,6 @@ public class Facade {
     private static final int TYPE_HOUSED_MULTICOLOR = 2;
     private static final int TYPE_MULTICOLOR = 3;
     private static final int TYPE_HOUSED = 4;
-
 
 
     private Facade() {
@@ -39,7 +42,7 @@ public class Facade {
 
         spools.forEach(spoolManager::addSpool);
         prints.forEach(printManager::addPrint);
-        for(Printer printer : printers) {
+        for (Printer printer : printers) {
             printerManager.addPrinter(
                     printer.getId(),
                     calculatePrinterTypeCategory(printer),
@@ -64,7 +67,7 @@ public class Facade {
         int printerId = scanner.nextInt();
         try {
             printTaskManager.registerPrintCompletion(printerId);
-        }catch (PrintError e){
+        } catch (PrintError e) {
             System.out.println(e.getMessage());
         }
     }
@@ -95,6 +98,14 @@ public class Facade {
         spoolManager.printSpools();
     }
 
+    public int getSpoolchanges() {
+        return spoolchanges;
+    }
+
+    public int getTotalprints() {
+        return totalprints;
+    }
+
     private int calculatePrinterTypeCategory(Printer printer) {
         if (printer instanceof StandardFDM) {
             return TYPE_STANDARD_FDM;
@@ -118,5 +129,19 @@ public class Facade {
             instance = new Facade();
         }
         return instance;
+    }
+
+    public void showstats() {
+        System.out.println("---------- Statisctics ----------");
+        System.out.println("Spool changes: " + getSpoolchanges());
+        System.out.println("totalprints prints: " + getTotalprints());
+        System.out.println("-------------------------------------------");
+
+    }
+
+    @Override
+    public void update(int spoolchanges, int totalprints) {
+        this.spoolchanges = spoolchanges;
+        this.totalprints = totalprints;
     }
 }
