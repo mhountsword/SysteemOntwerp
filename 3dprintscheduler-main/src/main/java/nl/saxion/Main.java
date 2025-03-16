@@ -28,6 +28,7 @@ public class Main {
                 case 9 ->  facade.showPendingPrintTasks();
                 case 10 -> facade.showstats();
             }
+            facade.exit();
         }
     }
     public void menu() {

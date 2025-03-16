@@ -1,5 +1,6 @@
 package nl.saxion.Models.managers;
 
+import nl.saxion.Models.observer.Observer;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.prints.PrintTask;
@@ -13,7 +14,7 @@ import java.util.stream.IntStream;
 
 import static nl.saxion.utils.NumberInput.numberInput;
 
-public class PrintTaskManager {
+public class PrintTaskManager extends Observer {
     private final static PrinterManager printerManager = PrinterManager.getInstance();
     private final static PrintManager printManager = PrintManager.getInstance();
     private final static SpoolManager spoolManager = SpoolManager.getInstance();
@@ -124,6 +125,7 @@ public class PrintTaskManager {
                 .orElseThrow(() -> new PrintError("cannot find a running task on printer with ID " + printerId));
 
         removeTask(foundEntry, foundEntry.getValue());
+        addprints();
     }
 
     public Map<Printer, PrintTask> getAllRunningTasks() {

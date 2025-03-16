@@ -34,6 +34,7 @@ public class Facade implements Updater {
         printTaskManager = PrintTaskManager.getInstance();
         spoolManager = SpoolManager.getInstance();
         strategyManager = StrategyManager.getInstance();
+        printTaskManager.subscribe(getInstance());
 
         Reader fileReader = new Reader();
         List<Print> prints = fileReader.readPrintsFromFile("prints.json");
@@ -137,6 +138,11 @@ public class Facade implements Updater {
         System.out.println("totalprints prints: " + getTotalprints());
         System.out.println("-------------------------------------------");
 
+    }
+
+    public void exit(){
+        printTaskManager.unsubscribe(instance);
+        System.out.println("goodbye");
     }
 
     @Override
