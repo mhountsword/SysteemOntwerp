@@ -4,6 +4,7 @@ import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.spools.Spool;
+import nl.saxion.exceptions.BadFileExtension;
 import nl.saxion.utils.PrinterFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -37,7 +38,7 @@ public class Reader {
                 prints.add(newPrint);
             }
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         return prints;
     }
@@ -60,12 +61,22 @@ public class Reader {
                 printers.add(newPrinter);
             }
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         return printers;
     }
     
     public ArrayList<Spool> readSpoolsFromFile(String filePath) {
+        if(filePath.toLowerCase().endsWith(".csv")) {
+            return readSpoolsFromCsvFile(filePath);
+        } else if (filePath.toLowerCase().endsWith(".json")) {
+            return readSpoolsFromJsonFile(filePath);
+        } else {
+            throw new BadFileExtension(filePath + " is not a valid file");
+        }
+    }
+
+    private ArrayList<Spool> readSpoolsFromJsonFile(String filePath) {
         JSONParser jsonParser = new JSONParser();
         URL spoolsResource = getClass().getResource("/" + filePath);
 
@@ -82,7 +93,22 @@ public class Reader {
                 spools.add(parseSpool((JSONObject) spoolObject));
             }
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+        }
+        return spools;
+    }
+
+    private ArrayList<Spool> readSpoolsFromCsvFile(String filePath) {
+        CSVAdapter csvAdapter = new CSVAdapter();
+        ArrayList<Spool> spools = new ArrayList<>();
+        try {
+            JSONArray jsonArray = csvAdapter.readFile(filePath);
+            for (Object spoolObject : jsonArray) {
+                spools.add(parseSpool((JSONObject) spoolObject));
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            return null;
         }
         return spools;
     }
@@ -129,13 +155,13 @@ public class Reader {
      * @throws IllegalArgumentException If the filamentType is invalid.
      */
     private Spool parseSpool(JSONObject spoolJson) {
-        int id = ((Long) spoolJson.get("id")).intValue();
+        int id = Integer.parseInt(spoolJson.get("id").toString());
         String color = (String) spoolJson.get("color");
-        String filamentType = (String) spoolJson.get("filamentType");
-        double length = (Double) spoolJson.get("length");
+        String filamentTypeStr = (String) spoolJson.get("filamentType");
+        double length = Double.parseDouble(spoolJson.get("length").toString());
 
-        FilamentType type = FilamentType.fromTypeString(filamentType);
-        return new Spool(id, color, type, length);
+        FilamentType filamentType = FilamentType.valueOf(filamentTypeStr.toUpperCase());
+        return new Spool(id, color, filamentType, length);
     }
 
     private int parseInt(Object value) {

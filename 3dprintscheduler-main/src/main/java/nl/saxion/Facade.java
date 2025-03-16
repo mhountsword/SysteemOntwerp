@@ -34,7 +34,7 @@ public class Facade {
 
         Reader fileReader = new Reader();
         List<Print> prints = fileReader.readPrintsFromFile("prints.json");
-        List<Spool> spools = fileReader.readSpoolsFromFile("spools.json");
+        List<Spool> spools = fileReader.readSpoolsFromFile("src/main/resources/spools.csv");
         List<Printer> printers = fileReader.readPrintersFromFile("printers.json");
 
         spools.forEach(spoolManager::addSpool);
