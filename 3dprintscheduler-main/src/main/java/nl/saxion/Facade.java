@@ -2,16 +2,13 @@ package nl.saxion;
 
 import nl.saxion.Models.managers.*;
 import nl.saxion.Models.printers.*;
-import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.prints.PrintTask;
 import nl.saxion.Models.spools.Spool;
 import nl.saxion.exceptions.PrintError;
 import nl.saxion.utils.readers.Reader;
 import java.util.*;
 
 public class Facade {
-//    TODO: er zit te veel business logic in de facade.
     private final PrinterManager printerManager;
     private final PrintManager printManager;
     private final PrintTaskManager printTaskManager;
@@ -19,6 +16,12 @@ public class Facade {
     private final StrategyManager strategyManager;
     private final Scanner scanner = new Scanner(System.in);
     private static Facade instance;
+
+    private static final int TYPE_UNKNOWN = 0;
+    private static final int TYPE_STANDARD_FDM = 1;
+    private static final int TYPE_HOUSED_MULTICOLOR = 2;
+    private static final int TYPE_MULTICOLOR = 3;
+    private static final int TYPE_HOUSED = 4;
 
 
 
@@ -39,9 +42,10 @@ public class Facade {
         for(Printer printer : printers) {
             printerManager.addPrinter(
                     printer.getId(),
-                    getPrinterType(printer),
+                    calculatePrinterTypeCategory(printer),
                     printer.getName(),
                     printer.getManufacturer(),
+                    printer.isHoused(),
                     printer.getMaxX(),
                     printer.getMaxY(),
                     printer.getMaxZ(),
@@ -91,13 +95,22 @@ public class Facade {
         spoolManager.printSpools();
     }
 
-    private int getPrinterType(Printer printer) {
-        return switch (printer) {
-            case StandardFDM standardFDM -> 1;
-            case HousedPrinter housedPrinter -> 2;
-            case MultiColor multiColor -> 3;
-            default -> -1;
-        };
+    private int calculatePrinterTypeCategory(Printer printer) {
+        if (printer instanceof StandardFDM) {
+            return TYPE_STANDARD_FDM;
+        }
+        boolean isMultiColor = printer instanceof MultiColor;
+        boolean isHoused = printer.isHoused();
+        if (isHoused && isMultiColor) {
+            return TYPE_HOUSED_MULTICOLOR;
+        }
+        if (isMultiColor) {
+            return TYPE_MULTICOLOR;
+        }
+        if (isHoused) {
+            return TYPE_HOUSED;
+        }
+        return TYPE_UNKNOWN;
     }
 
     public static Facade getInstance() {

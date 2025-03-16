@@ -13,8 +13,8 @@ public class MultiColor extends Printer {
     private Spool spool3;
     private Spool spool4;
 
-    public MultiColor(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) {
-        super(id, printerName, manufacturer, maxX, maxY, maxZ);
+    public MultiColor(int id, String printerName, String manufacturer, boolean isHoused, int maxX, int maxY, int maxZ, int maxColors) {
+        super(id, printerName, manufacturer, isHoused, maxX, maxY, maxZ);
         this.maxColors = maxColors;
     }
 

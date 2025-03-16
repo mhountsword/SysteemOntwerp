@@ -9,27 +9,20 @@ public class Printer {
     private final int id;
     private final String name;
     private final String manufacturer;
+    private final boolean isHoused;
     private final int maxX;
     private final int maxY;
     private final int maxZ;
     private Spool currentSpool;
 
-    public Printer(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ) {
+    public Printer(int id, String printerName, String manufacturer, boolean isHoused, int maxX, int maxY, int maxZ) {
         this.id = id;
         this.name = printerName;
         this.manufacturer = manufacturer;
+        this.isHoused = isHoused;
         this.maxY = maxY;
         this.maxX = maxX;
         this.maxZ = maxZ;
-    }
-
-    public Printer(String[] values) {
-        this.id = Integer.parseInt(values[0]);
-        this.name = values[2];
-        this.manufacturer = values[4];
-        this.maxX = Integer.parseInt(values[5]);
-        this.maxY = Integer.parseInt(values[6]);
-        this.maxZ = Integer.parseInt(values[7]);
     }
 
     public int CalculatePrintTime(String filename){
@@ -91,4 +84,6 @@ public class Printer {
     public int getMaxZ() {
         return maxZ;
     }
+
+    public boolean isHoused() {return isHoused;}
 }

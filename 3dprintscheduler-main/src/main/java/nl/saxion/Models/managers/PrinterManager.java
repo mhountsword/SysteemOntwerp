@@ -15,8 +15,8 @@ public class PrinterManager {
         return new ArrayList<>(freePrinters);
     }
 
-    public void addPrinter(int id, int printerType, String printerName, String manufacturer, int maxX, int maxY, int maxZ, int maxColors) { //receive String[]
-        Printer newPrinter = new PrinterFactory().createPrinterByType(id, printerType, printerName, manufacturer, maxX, maxY, maxZ, maxColors);
+    public void addPrinter(int id, int printerType, String printerName, String manufacturer, boolean isHoused, int maxX, int maxY, int maxZ, int maxColors) { //receive String[]
+        Printer newPrinter = new PrinterFactory().createPrinterByType(id, printerType, printerName, manufacturer, isHoused, maxX, maxY, maxZ, maxColors);
         printers.add(newPrinter);
         freePrinters.add(newPrinter);
     }

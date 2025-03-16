@@ -8,8 +8,8 @@ import java.util.List;
 
 /* Standard cartesian FDM printer */
 public class StandardFDM extends Printer {
-    public StandardFDM(int id, String printerName, String manufacturer, int maxX, int maxY, int maxZ) {
-        super(id, printerName, manufacturer, maxX, maxY, maxZ);
+    public StandardFDM(int id, String printerName, String manufacturer, boolean isHoused, int maxX, int maxY, int maxZ) {
+        super(id, printerName, manufacturer, isHoused, maxX, maxY, maxZ);
     }
 
     @Override

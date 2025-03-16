@@ -3,7 +3,6 @@ package nl.saxion.Models.strategy;
 import nl.saxion.Models.managers.PrintTaskManager;
 import nl.saxion.Models.managers.PrinterManager;
 import nl.saxion.Models.managers.SpoolManager;
-import nl.saxion.Models.printers.HousedPrinter;
 import nl.saxion.Models.printers.MultiColor;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.printers.StandardFDM;
@@ -64,7 +63,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
             return currentSpools.getFirst().spoolMatch(task.colors().getFirst(), task.filamentType());
         }
         // HousedPrinter: similar to StandardFDM.
-        else if (printer instanceof HousedPrinter && task.colors().size() == 1) {
+        else if (printer.isHoused() && task.colors().size() == 1) {
             return currentSpools.getFirst().spoolMatch(task.colors().getFirst(), task.filamentType());
         }
         // MultiColor: all required spools (in order) must match.
@@ -91,10 +90,6 @@ public class DefaultStrategy implements PrintStrategyInterface {
             if (printer.printFits(task.print())) continue;
             switch (printer) {
                 case StandardFDM standardFDM when task.filamentType() != FilamentType.ABS && task.colors().size() == 1 -> {
-                    PrintTask assigned = getPrintTask(printer, task);
-                    if (assigned != null) return assigned;
-                }
-                case HousedPrinter housedPrinter when task.colors().size() == 1 -> {
                     PrintTask assigned = getPrintTask(printer, task);
                     if (assigned != null) return assigned;
                 }

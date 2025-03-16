@@ -88,6 +88,7 @@ public class Reader {
     }
 
     private Printer parsePrinter(JSONObject printerJson) {
+        boolean isHoused;
         // Parse common printer fields.
         int id = parseInt(printerJson.get("id"));
         String name = (String) printerJson.get("name");
@@ -97,9 +98,12 @@ public class Reader {
         int maxZ = parseInt(printerJson.get("maxZ"));
         int maxColors = parseInt(printerJson.get("maxColors"));
 
+
         // Delegate printer creation based on type
         int type = parseInt(printerJson.get("type"));
-        return printerFactory.createPrinterByType(id, type, name, manufacturer, maxX, maxY, maxZ, maxColors);
+        isHoused = type == 2 || type > 3;
+
+        return printerFactory.createPrinterByType(id, type, name, manufacturer, isHoused, maxX, maxY, maxZ, maxColors);
     }
 
     private Print parsePrint(JSONObject p) {
