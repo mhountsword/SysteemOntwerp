@@ -9,9 +9,6 @@ public class PrintManager {
     private final List<Print> prints = new ArrayList<>();
     private static PrintManager instance;
 
-
-
-
     public void addPrint(Print print) {
         Print p = new Print(print.getName(), print.getHeight(), print.getWidth(), print.getLength(), print.getFilamentLength(), print.getPrintTime());
         prints.add(p);

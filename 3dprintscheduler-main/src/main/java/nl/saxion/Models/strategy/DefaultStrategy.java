@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
 public class DefaultStrategy implements PrintStrategyInterface {
     private final PrintTaskManager printTaskManager = PrintTaskManager.getInstance();
     private final PrinterManager printerManager = PrinterManager.getInstance();

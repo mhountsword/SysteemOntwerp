@@ -9,10 +9,10 @@ public class PrinterManager {
     private final List<Printer> freePrinters = new ArrayList<>();
 
     public List<Printer> getPrinters() {
-        return new ArrayList<>(printers);
+       return printers;
     }
     public List<Printer> getFreePrinters() {
-        return new ArrayList<>(freePrinters);
+        return freePrinters;
     }
 
     public void addPrinter(int id, int printerType, String printerName, String manufacturer, boolean isHoused, int maxX, int maxY, int maxZ, int maxColors) { //receive String[]
