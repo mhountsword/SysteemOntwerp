@@ -23,8 +23,6 @@ public class Facade {
     private static final int TYPE_MULTICOLOR = 3;
     private static final int TYPE_HOUSED = 4;
 
-
-
     private Facade() {
         printerManager = PrinterManager.getInstance();
         printManager = PrintManager.getInstance();
