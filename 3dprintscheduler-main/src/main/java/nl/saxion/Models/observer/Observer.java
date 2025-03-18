@@ -1,9 +1,9 @@
 package nl.saxion.Models.observer;
-
 import java.util.ArrayList;
 
 public class Observer {
-    private ArrayList<Updater> observers = new ArrayList<>();
+    private final ArrayList<Updater> observers = new ArrayList<>();
+    private static Observer instance;
     int spoolchanges = 0;
     int totalprint = 0;
 
@@ -26,6 +26,13 @@ public class Observer {
         for (Updater observer: observers){
             observer.update(spoolchanges,totalprint);
         }
+    }
+
+    public static Observer getInstance() {
+        if (instance == null) {
+            instance = new Observer();
+        }
+        return instance;
     }
 
 

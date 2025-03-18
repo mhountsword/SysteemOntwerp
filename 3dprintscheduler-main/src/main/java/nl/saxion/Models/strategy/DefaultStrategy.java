@@ -3,6 +3,8 @@ package nl.saxion.Models.strategy;
 import nl.saxion.Models.managers.PrintTaskManager;
 import nl.saxion.Models.managers.PrinterManager;
 import nl.saxion.Models.managers.SpoolManager;
+import nl.saxion.Models.observer.Observer;
+import nl.saxion.Models.observer.Updater;
 import nl.saxion.Models.printers.MultiColor;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.printers.StandardFDM;
@@ -19,11 +21,13 @@ public class DefaultStrategy implements PrintStrategyInterface {
     private final PrintTaskManager printTaskManager = PrintTaskManager.getInstance();
     private final PrinterManager printerManager = PrinterManager.getInstance();
     private final SpoolManager spoolManager = SpoolManager.getInstance();
+    private final Observer observer = Observer.getInstance();
 
     private final Map<Printer, PrintTask> runningPrintTasks = printTaskManager.getAllRunningTasks();
     private final List<PrintTask> pendingPrintTasks = printTaskManager.getPendingPrintTasks();
     private final List<Printer> freePrinters = printerManager.getFreePrinters();
     private final List<Spool> freeSpools = spoolManager.getFreeSpools();
+
 
     @Override
     public void assignTasksToPrinters(Printer printer) {
@@ -104,6 +108,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
                         printer.setCurrentSpools(chosenSpools);
                         int position = 1;
                         for (Spool spool : chosenSpools) {
+                            observer.addspool();
                             System.out.println("- Spool change: Please place spool " + spool.getId() +
                                     " in printer " + printer.getName() + " position " + position);
                             freeSpools.remove(spool);
@@ -137,6 +142,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
         freeSpools.remove(chosenSpool);
         printer.setCurrentSpool(chosenSpool);
         freePrinters.remove(printer);
+        observer.addspool();
 
         return printTask;
     }

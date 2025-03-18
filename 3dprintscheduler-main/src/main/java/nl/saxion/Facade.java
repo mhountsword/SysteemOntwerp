@@ -1,6 +1,7 @@
 package nl.saxion;
 
 import nl.saxion.Models.managers.*;
+import nl.saxion.Models.observer.Observer;
 import nl.saxion.Models.observer.Updater;
 import nl.saxion.Models.printers.*;
 import nl.saxion.Models.prints.Print;
@@ -21,6 +22,8 @@ public class Facade implements Updater {
     private final Scanner scanner = new Scanner(System.in);
     private static Facade instance;
 
+    private final Observer observer;
+
     private static final int TYPE_UNKNOWN = 0;
     private static final int TYPE_STANDARD_FDM = 1;
     private static final int TYPE_HOUSED_MULTICOLOR = 2;
@@ -34,7 +37,9 @@ public class Facade implements Updater {
         printTaskManager = PrintTaskManager.getInstance();
         spoolManager = SpoolManager.getInstance();
         strategyManager = StrategyManager.getInstance();
-        printTaskManager.subscribe(getInstance());
+        observer = Observer.getInstance();
+        observer.subscribe(this);
+
 
         Reader fileReader = new Reader();
         List<Print> prints = fileReader.readPrintsFromFile("prints.json");
@@ -141,7 +146,7 @@ public class Facade implements Updater {
     }
 
     public void exit(){
-        printTaskManager.unsubscribe(instance);
+        observer.unsubscribe(instance);
         System.out.println("goodbye");
     }
 

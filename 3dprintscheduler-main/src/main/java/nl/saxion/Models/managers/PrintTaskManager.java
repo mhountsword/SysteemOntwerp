@@ -14,11 +14,12 @@ import java.util.stream.IntStream;
 
 import static nl.saxion.utils.NumberInput.numberInput;
 
-public class PrintTaskManager extends Observer {
+public class PrintTaskManager{
     private final static PrinterManager printerManager = PrinterManager.getInstance();
     private final static PrintManager printManager = PrintManager.getInstance();
     private final static SpoolManager spoolManager = SpoolManager.getInstance();
     private final static StrategyManager strategyManager = StrategyManager.getInstance();
+    private final static Observer observer = Observer.getInstance();
 
     private final List<PrintTask> pendingPrintTasks = new ArrayList<>();
     private final Map<Printer, PrintTask> runningPrintTasks = new HashMap<>();
@@ -125,7 +126,7 @@ public class PrintTaskManager extends Observer {
                 .orElseThrow(() -> new PrintError("cannot find a running task on printer with ID " + printerId));
 
         removeTask(foundEntry, foundEntry.getValue());
-        addprints();
+       observer.addprints();
     }
 
     public Map<Printer, PrintTask> getAllRunningTasks() {
