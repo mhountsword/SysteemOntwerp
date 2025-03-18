@@ -38,9 +38,9 @@ public class EfficientStrategy implements PrintStrategyInterface {
             return; // Printer cannot handle this print
         }
 
-        if (printer instanceof StandardFDM standardFDM) {
+        if (printer instanceof StandardFDM) {
             assignTaskToStandardFDM(printer, task);
-        } else if (printer instanceof MultiColor multiColor) {
+        } else if (printer instanceof MultiColor) {
             assignTaskToMultiColor(printer, task);
         }
     }

@@ -88,15 +88,17 @@ public class DefaultStrategy implements PrintStrategyInterface {
         for (PrintTask task : pendingPrintTasks) {
             if (printer.printFits(task.print())) continue;
             switch (printer) {
+                // For single-colour prints/printers, spools are inserted here
                 case StandardFDM standardFDM when task.filamentType() != FilamentType.ABS && task.colors().size() == 1 -> {
-                    PrintTask assigned = getPrintTask(printer, task);
+                    PrintTask assigned = getPrintTask(printer, task); //<-- This is where the spool is inserted into the printer
                     if (assigned != null) return assigned;
                 }
+                // For multi-colour prints/printers, spools are inserted here
                 case MultiColor multi -> {
                     if (task.filamentType() == FilamentType.ABS || task.colors().size() > multi.getMaxColors()) {
                         continue;
                     }
-                    List<Spool> chosenSpools = chooseFreeSpoolsForMultiColor(task);
+                    List<Spool> chosenSpools = chooseFreeSpoolsForMultiColor(task); //<-- This is where spools are chosen for the multi-colour print
                     if (chosenSpools.size() == task.colors().size()) {
                         // Return the current spools to the free pool before switching.
                         freeSpools.addAll(printer.getCurrentSpools());
