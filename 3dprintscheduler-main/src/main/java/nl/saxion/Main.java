@@ -13,7 +13,7 @@ public class Main {
 
     public void run(){
         int choice = 1;
-        while (choice > 0 && choice < 10) {
+        while (choice > 0 && choice <= 10) {
             menu();
             choice = scanner.nextInt();
             System.out.println("-----------------------------------");
@@ -26,8 +26,10 @@ public class Main {
                 case 7 -> facade.showPrinters();
                 case 8 -> facade.showSpools();
                 case 9 ->  facade.showPendingPrintTasks();
+                case 10 -> facade.showstats();
             }
         }
+        facade.exit();
     }
     public void menu() {
         System.out.println("------------- Menu ----------------");
@@ -40,6 +42,7 @@ public class Main {
         System.out.println("- 7) Show printers");
         System.out.println("- 8) Show spools");
         System.out.println("- 9) Show pending print tasks");
+        System.out.println("-10) show statistics");
         System.out.println("- 0) Exit");
     }
 

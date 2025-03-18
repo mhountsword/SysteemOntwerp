@@ -1,5 +1,8 @@
 package nl.saxion.Models.managers;
 
+import nl.saxion.Facade;
+import nl.saxion.Models.observer.Observer;
+import nl.saxion.Models.observer.Updater;
 import nl.saxion.Models.printers.Printer;
 import nl.saxion.Models.strategy.DefaultStrategy;
 import nl.saxion.Models.strategy.EfficientStrategy;
@@ -18,7 +21,9 @@ public class StrategyManager {
     public StrategyManager() {
         printStrategies.put(Strategy.DEFAULT, new DefaultStrategy());
         printStrategies.put(Strategy.EFFICIENT, new EfficientStrategy());
+
     }
+
 
     public void changePrintStrategy() {
         System.out.println("---------- Change Strategy -------------");
@@ -38,7 +43,7 @@ public class StrategyManager {
     }
 
     public void startPrinting(List<Printer> printers) {
-        for(Printer printer : printers) {
+        for (Printer printer : printers) {
             printStrategies.get(this.printStrategy).assignTasksToPrinters(printer);
         }
     }
