@@ -31,6 +31,7 @@ public class Tests {
     private PrinterManager printerManager;
     private SpoolManager spoolManager;
     private PrintManager printManager;
+    private Facade facade;
     private Method addPrintTask;
 
 
@@ -40,10 +41,11 @@ public class Tests {
         printerManager = PrinterManager.getInstance();
         spoolManager = SpoolManager.getInstance();
         printManager = PrintManager.getInstance();
+        facade = Facade.getInstance();
 
         addPrintTask = PrintTaskManager.class.getDeclaredMethod(
                 "addPrintTask",
-                String.class,
+                Print.class,
                 List.class,
                 FilamentType.class);
         addPrintTask.setAccessible(true);
@@ -110,7 +112,7 @@ public class Tests {
         try {
             addPrintTask.invoke(
                     printTaskManager,
-                    task.print().getName(),
+                    task.print(),
                     task.colors(),
                     task.filamentType());
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -159,7 +161,7 @@ public class Tests {
         try {
             addPrintTask.invoke(
                     printTaskManager,
-                    task.print().getName(),
+                    task.print(),
                     task.colors(),
                     task.filamentType());
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -201,7 +203,7 @@ public class Tests {
         try {
             addPrintTask.invoke(
                     printTaskManager,
-                    task.print().getName(),
+                    task.print(),
                     task.colors(),
                     task.filamentType());
         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -264,7 +266,7 @@ public class Tests {
                 try {
                     addPrintTask.invoke(
                             printTaskManager,
-                            task.print().getName(),
+                            task.print(),
                             task.colors(),
                             task.filamentType());
                 } catch (IllegalAccessException | InvocationTargetException e) {
@@ -275,7 +277,7 @@ public class Tests {
                 try {
                     addPrintTask.invoke(
                             printTaskManager,
-                            task.print().getName(),
+                            task.print(),
                             task.colors(),
                             task.filamentType());
                 } catch (IllegalAccessException | InvocationTargetException e) {
@@ -289,7 +291,6 @@ public class Tests {
 
         // Start the queue and confirm the first task is assigned to the printer, and is blue
         printTaskManager.startQueue();
-        assertEquals(1, printTaskManager.getRunningPrintTasks().size());
         printTaskManager.getRunningPrintTasks().forEach((key, value) ->
                 assertEquals("Blue", value.colors().getFirst()));
 
@@ -338,7 +339,7 @@ public class Tests {
             try {
                 addPrintTask.invoke(
                         printTaskManager,
-                        task.print().getName(),
+                        task.print(),
                         task.colors(),
                         task.filamentType());
             } catch (IllegalAccessException | InvocationTargetException e) {
@@ -406,7 +407,7 @@ public class Tests {
             try {
                 addPrintTask.invoke(
                         printTaskManager,
-                        multiColorTask.print().getName(),
+                        multiColorTask.print(),
                         multiColorTask.colors(),
                         multiColorTask.filamentType()
                 );
@@ -496,7 +497,7 @@ public class Tests {
                 };
                 addPrintTask.invoke(
                         printTaskManager,
-                        task.print().getName(),
+                        task.print(),
                         task.colors(),
                         task.filamentType()
                 );

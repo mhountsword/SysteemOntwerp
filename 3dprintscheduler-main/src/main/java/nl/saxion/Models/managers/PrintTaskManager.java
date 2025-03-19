@@ -77,17 +77,14 @@ public class PrintTaskManager{
                 Spool spool = spools.get(colorNumber - 1);
                 colors.add(spool.getColor());
             }
-            addPrintTask(print.getName(), colors, type);
+            addPrintTask(print, colors, type);
             System.out.println("----------------------------");
         } catch (PrintError e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private void addPrintTask(String printName, List<String> colors, FilamentType filamentType) throws PrintError {
-        Print print = Optional.ofNullable(printManager.findPrint(printName))
-                .orElseThrow(() -> new PrintError("Could not find print with name " + printName));
-
+    private void addPrintTask(Print print, List<String> colors, FilamentType filamentType) throws PrintError {
         if (colors.isEmpty()) {
             throw new PrintError("no colors available");
         }

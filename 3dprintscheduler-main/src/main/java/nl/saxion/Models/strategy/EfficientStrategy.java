@@ -10,10 +10,7 @@ import nl.saxion.Models.prints.PrintTask;
 import nl.saxion.Models.spools.FilamentType;
 import nl.saxion.Models.spools.Spool;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EfficientStrategy implements PrintStrategyInterface {

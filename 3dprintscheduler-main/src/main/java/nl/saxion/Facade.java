@@ -138,9 +138,9 @@ public class Facade implements Updater {
     }
 
     public void showstats() {
-        System.out.println("---------- Statisctics ----------");
+        System.out.println("---------- Statistics ----------");
         System.out.println("Spool changes: " + getSpoolchanges());
-        System.out.println("totalprints prints: " + getTotalprints());
+        System.out.println("total prints: " + getTotalprints());
         System.out.println("-------------------------------------------");
 
     }
