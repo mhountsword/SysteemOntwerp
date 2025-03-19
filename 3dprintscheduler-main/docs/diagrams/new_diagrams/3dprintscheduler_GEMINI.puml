@@ -2,7 +2,7 @@
 
 ' Classes in the nl.saxion package
 package nl.saxion {
-    class Facade {
+    class Facade implements Updater{
         -printerManager: PrinterManager
         -printManager: PrintManager
         -printTaskManager: PrintTaskManager
@@ -26,6 +26,7 @@ package nl.saxion {
         +showSpools(): void
         -calculatePrinterTypeCategory(printer: Printer): int
         +getInstance(): Facade
+        + update(spoolchanges: int, totalprints: int): void
     }
 
     class Main {
@@ -296,6 +297,25 @@ package nl.saxion.utils.readers {
         -parseInt(value: Object): int
     }
 }
+' classes in nl.saxion.Models.observer package
+package nl.saxion.Models.observer{
+  class Observer {
+        - observers: ArrayList<Updater>
+        - instance: Observer
+        - spoolchanges: int
+        - totalprint: int
+        + subscribe(observer: Updater): void
+        + unsubscribe(observer: Updater): void
+        + addspool(): void
+        + addprints(): void
+        - notifyobservers(): void
+        + getInstance(): Observer
+    }
+
+    interface Updater {
+        + update(spoolchanges: int, totalprint: int): void
+    }
+    }
 
 ' Relationships
 nl.saxion.Facade --|> nl.saxion.Models.managers.PrinterManager
@@ -303,6 +323,9 @@ nl.saxion.Facade --|> nl.saxion.Models.managers.PrintManager
 nl.saxion.Facade --|> nl.saxion.Models.managers.PrintTaskManager
 nl.saxion.Facade --|> nl.saxion.Models.managers.SpoolManager
 nl.saxion.Facade --|> nl.saxion.Models.managers.StrategyManager
+nl.saxion.Facade --|> nl.saxion.Models.observer.Updater
+nl.saxion.Facade --|> nl.saxion.Models.observer.Observer
+
 nl.saxion.Main --|> nl.saxion.Facade
 
 nl.saxion.Models.managers.PrinterManager --|> nl.saxion.Models.printers.Printer
