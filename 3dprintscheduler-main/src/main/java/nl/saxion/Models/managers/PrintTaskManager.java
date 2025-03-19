@@ -25,6 +25,11 @@ public class PrintTaskManager{
     private final Map<Printer, PrintTask> runningPrintTasks = new HashMap<>();
     private static PrintTaskManager instance;
 
+
+    public Map<Printer, PrintTask> getRunningPrintTasks() {
+        return runningPrintTasks;
+    }
+
     public void startQueue() {
         strategyManager.startPrinting(printerManager.getPrinters());
     }

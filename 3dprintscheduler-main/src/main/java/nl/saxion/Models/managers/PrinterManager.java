@@ -21,6 +21,19 @@ public class PrinterManager {
         freePrinters.add(newPrinter);
     }
 
+    public void addPrinter(Printer printer){
+        printers.add(printer);
+        freePrinters.add(printer);
+    }
+
+
+    public void addfreeprinter(Printer printer){
+        freePrinters.add(printer);
+    }
+    public void removefreeprinter(Printer printer){
+        freePrinters.remove(printer);
+    }
+
     public void printPrinters(){
         System.out.println("--------- Available printers ---------");
         printers.forEach(printer -> System.out.println(printer.toString()));

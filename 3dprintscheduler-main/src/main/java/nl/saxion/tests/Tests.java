@@ -1,47 +1,582 @@
 package nl.saxion.tests;
 
 import nl.saxion.Facade;
+import nl.saxion.Models.managers.*;
+import nl.saxion.Models.printers.MultiColor;
+import nl.saxion.Models.printers.Printer;
+import nl.saxion.Models.printers.StandardFDM;
+import nl.saxion.Models.prints.Print;
+import nl.saxion.Models.prints.PrintTask;
+import nl.saxion.Models.spools.FilamentType;
+import nl.saxion.Models.spools.Spool;
+import nl.saxion.Models.strategy.Strategy;
+import nl.saxion.exceptions.PrintError;
+import nl.saxion.utils.readers.Reader;
+import org.junit.Assert;
 import org.junit.Assert.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class Tests {
-    private final Facade facade = Facade.getInstance();
+    private PrintTaskManager printTaskManager;
+    private PrinterManager printerManager;
+    private SpoolManager spoolManager;
+    private PrintManager printManager;
+    private Method addPrintTask;
 
-    @Test
-    void When_adding_print_should_be_assigned_to_printer_that_can_print_it_that_hasmatchingspool() {
-        facade.addNewPrintTask();
+
+    @BeforeEach
+    public void setup() throws NoSuchMethodException {
+        printTaskManager = PrintTaskManager.getInstance();
+        printerManager = PrinterManager.getInstance();
+        spoolManager = SpoolManager.getInstance();
+        printManager = PrintManager.getInstance();
+
+        addPrintTask = PrintTaskManager.class.getDeclaredMethod(
+                "addPrintTask",
+                String.class,
+                List.class,
+                FilamentType.class);
+        addPrintTask.setAccessible(true);
+    }
+
+    @AfterEach
+    public void after() {
+        printTaskManager.getPendingPrintTasks().clear();
+        printTaskManager.getRunningPrintTasks().clear();
+
+        for (Printer printer : printerManager.getPrinters()) {
+            if (!printerManager.getFreePrinters().contains(printer)) {
+                printerManager.addfreeprinter(printer);
+            }
+        }
     }
 
     @Test
-    void When_adding_print_it_should_be_assigned_to_printer_that_can_physically_print_it_and_a_spool_change_is_initiated() {
+    public void testAddPrintAssignedToPhysicallyCompatiblePrinterWithMatchingSpool() {
+        // Make sure there are no other printers available
+        for (Printer printer : printerManager.getPrinters()) {
+            printerManager.removefreeprinter(printer);
+        }
+        // Create a test Print
+        Print testPrint = new Print(
+                "TestPrint1",
+                100, 100, 50,
+                new ArrayList<>(List.of(10.0)), 120);
+        printManager.getPrints().add(testPrint);
+
+        Spool spool = new Spool(99, "Blue", FilamentType.PLA, 200.0);
+        Spool spool2 = new Spool(100, "Blue", FilamentType.PLA, 200.0);
+        spoolManager.addSpool(spool);
+        spoolManager.addSpool(spool2);
+
+        Printer incompatiblePrinter = new StandardFDM(
+                100,
+                "IncompatiblePrinter",
+                "Manufacturer",
+                false,
+                50, 50, 50
+
+        );
+
+        Printer compatiblePrinter = new StandardFDM(
+                100,
+                "CompatiblePrinter",
+                "Manufacturer",
+                false,
+                200, 200, 200
+        );
+
+        incompatiblePrinter.setCurrentSpool(spool2);
+        printerManager.addfreeprinter(incompatiblePrinter);
+        compatiblePrinter.setCurrentSpool(spool);
+        printerManager.addfreeprinter(compatiblePrinter);
+
+        // Make sure no tasks are in the queue
+        assertTrue(printTaskManager.getPendingPrintTasks().isEmpty());
+        assertTrue(printTaskManager.getRunningPrintTasks().isEmpty());
+
+        // Add a PrintTask with correct color/spool
+        PrintTask task = new PrintTask(testPrint, List.of("Blue"), FilamentType.PLA);
+        try {
+            addPrintTask.invoke(
+                    printTaskManager,
+                    task.print().getName(),
+                    task.colors(),
+                    task.filamentType());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            fail("Exception occurred while invoking addPrintTaskMethod: " + e.getMessage());
+        }
+
+        // Confirm the task was added to the queue
+        assertNotNull(printTaskManager.getPendingPrintTasks());
+        assertTrue(printTaskManager.getPendingPrintTasks().contains(task));
+
+        // Start the queue to assign the task to a printer
+        printTaskManager.startQueue();
+
+        // Confirm the task was assigned to a printer
+        assertTrue(printTaskManager.getRunningPrintTasks().containsValue(task));
+
+        printerManager.removefreeprinter(compatiblePrinter);
+        printerManager.removefreeprinter(incompatiblePrinter);
+    }
+
+    @Test
+    public void testAddPrintInitiatesSpoolChangeForCompatiblePrinter() {
+        Spool spool1 = new Spool(101, "Red", FilamentType.PLA, 100);
+        Spool spool2 = new Spool(102, "Blue", FilamentType.PLA, 100);
+        spoolManager.addSpool(spool1);
+        spoolManager.addSpool(spool2);
+
+        // Set printer to have a different color spool
+        Printer printer = printerManager.getPrinters().getFirst();
+        if (printer instanceof StandardFDM singleSpoolPrinter) {
+            singleSpoolPrinter.setCurrentSpool(spool1);
+        }
+
+        // Make sure no tasks are in the queue
+        assertTrue(printTaskManager.getPendingPrintTasks().isEmpty());
+        assertTrue(printTaskManager.getRunningPrintTasks().isEmpty());
+
+        Print testPrint = new Print(
+                "TestPrint2",
+                50, 50, 50,
+                new ArrayList<>(List.of(20.0)),
+                200);
+        printManager.getPrints().add(testPrint);
+
+        PrintTask task = new PrintTask(testPrint, List.of("Blue"), FilamentType.PLA);
+        try {
+            addPrintTask.invoke(
+                    printTaskManager,
+                    task.print().getName(),
+                    task.colors(),
+                    task.filamentType());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            fail("Exception occurred while invoking addPrintTaskMethod: " + e.getMessage());
+        }
+
+        // Confirm the task was added to the queue
+        assertNotNull(printTaskManager.getPendingPrintTasks());
+
+        // Start the queue to assign the task to a printer
+        printTaskManager.startQueue();
+
+        // Confirm the task was assigned to a printer
+        assertFalse(printTaskManager.getPendingPrintTasks().contains(task));
+        assertTrue(printTaskManager.getRunningPrintTasks().containsValue(task));
+    }
+
+    @Test
+    public void testAddPrintToQueueWhenNoCompatiblePrinterAvailable() {
+        // Make sure there are no printers available
+        for (Printer printer : printerManager.getPrinters()) {
+            printerManager.removefreeprinter(printer);
+        }
+
+        // Make sure no tasks are in the queue
+        assertTrue(printTaskManager.getPendingPrintTasks().isEmpty());
+        assertTrue(printTaskManager.getRunningPrintTasks().isEmpty());
+
+        // Add a print to the queue
+        Print testPrint = new Print(
+                "TestPrint3",
+                50, 50, 50,
+                new ArrayList<>(List.of(20.0)),
+                200);
+
+        printManager.getPrints().add(testPrint);
+
+        PrintTask task = new PrintTask(testPrint, List.of("Blue"), FilamentType.PLA);
+        try {
+            addPrintTask.invoke(
+                    printTaskManager,
+                    task.print().getName(),
+                    task.colors(),
+                    task.filamentType());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            fail("Exception occurred while invoking addPrintTaskMethod: " + e.getMessage());
+        }
+
+        // Confirm the task was added to the queue
+        assertTrue(printTaskManager.getPendingPrintTasks().contains(task));
+
+        // Start the queue to assign the task to a printer
+        printTaskManager.startQueue();
+
+        // Confirm the task was not assigned to a printer
+        assertTrue(printTaskManager.getPendingPrintTasks().contains(task));
+    }
+
+    @Test
+    public void testLessSpoolChanges() throws PrintError {
+        // Make sure there are no other printers available for testing purposes
+        for (Printer printer : printerManager.getPrinters()) {
+            printerManager.removefreeprinter(printer);
+        }
+
+        // Create test print
+        Print testPrint = new Print(
+                "TestPrint4",
+                100, 100, 50,
+                new ArrayList<>(List.of(10.0)),
+                120);
+        printManager.getPrints().add(testPrint);
+
+        Spool blueSpool = new Spool(99, "Blue", FilamentType.PLA, 200.0);
+        Spool redSpool = new Spool(100, "Red", FilamentType.PLA, 200.0);
+
+        spoolManager.addSpool(blueSpool);
+        spoolManager.addSpool(redSpool);
+
+        // Prepare a printer with a matching spool
+        Printer compatiblePrinter = new StandardFDM(
+                100,
+                "CompatiblePrinter",
+                "Manufacturer",
+                false,
+                200, 200, 200
+
+        );
+
+        // Pre-assign the blue spool to the printer
+        compatiblePrinter.setCurrentSpool(blueSpool);
+        printerManager.addPrinter(compatiblePrinter);
+
+        // Make queues are empty
+        assertTrue(printTaskManager.getPendingPrintTasks().isEmpty());
+        assertTrue(printTaskManager.getRunningPrintTasks().isEmpty());
+
+        // Add multiple PrintTasks alternating between blue and red
+        for (int i = 0; i < 10; i++) {
+            if (i % 2 == 0) {
+                PrintTask task = new PrintTask(testPrint, List.of("Blue"), FilamentType.PLA);
+                try {
+                    addPrintTask.invoke(
+                            printTaskManager,
+                            task.print().getName(),
+                            task.colors(),
+                            task.filamentType());
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    fail("Exception occurred while invoking addPrintTaskMethod: " + e.getMessage());
+                }
+            } else {
+                PrintTask task = new PrintTask(testPrint, List.of("Red"), FilamentType.PLA);
+                try {
+                    addPrintTask.invoke(
+                            printTaskManager,
+                            task.print().getName(),
+                            task.colors(),
+                            task.filamentType());
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    fail("Exception occurred while invoking addPrintTaskMethod: " + e.getMessage());
+                }
+            }
+        }
+
+        // Confirm all the tasks are added to the queue
+        assertEquals(10, printTaskManager.getPendingPrintTasks().size());
+
+        // Start the queue and confirm the first task is assigned to the printer, and is blue
+        printTaskManager.startQueue();
+        assertEquals(1, printTaskManager.getRunningPrintTasks().size());
+        printTaskManager.getRunningPrintTasks().forEach((key, value) ->
+                assertEquals("Blue", value.colors().getFirst()));
+
+        for (int i = 0; i < 4; i++) {
+            // Mark the printer as ready
+            printTaskManager.registerPrintCompletion(100);
+
+            // Confirm the next assigned task is another blue task
+            assertEquals(1, printTaskManager.getRunningPrintTasks().size());
+            printTaskManager.getRunningPrintTasks().forEach((key, value) ->
+                    assertEquals("Blue", value.colors().getFirst()));
+        }
+
+        // Confirm that red is assigned after all the blue tasks are completed
+        printTaskManager.registerPrintCompletion(100);
+        assertEquals(1, printTaskManager.getRunningPrintTasks().size());
+
+        printTaskManager.getRunningPrintTasks().forEach((key, value) ->
+                assertEquals("Red", value.colors().getFirst()));
 
     }
 
     @Test
-    void When_adding_a_print_and_there_is_no_printer_available_that_can_physically_print_it_is_added_to_the_queue() {
+    public void testStartQueueFillsAllPrinters() {
+        int amountOfPrinters = printerManager.getPrinters().size();
 
+        // remove all other prints
+        printManager.getPrints().clear();
+
+        for (int i = 0; i < amountOfPrinters; i++) {
+            Print testPrint = new Print(
+                    "TestPrint" + i,
+                    100, 100, 50,
+                    new ArrayList<>(List.of(10.0)),
+                    120);
+            printManager.getPrints().add(testPrint);
+
+            Spool spool = new Spool(
+                    99 + i,
+                    "Blue",
+                    FilamentType.PLA,
+                    200.0);
+            spoolManager.addSpool(spool);
+
+            PrintTask task = new PrintTask(testPrint, List.of("Blue"), FilamentType.PLA);
+            try {
+                addPrintTask.invoke(
+                        printTaskManager,
+                        task.print().getName(),
+                        task.colors(),
+                        task.filamentType());
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                fail("Exception occurred while invoking addPrintTaskMethod: " + e.getMessage());
+            }
+        }
+
+        // Make sure there are enough tasks in the queue
+        assertEquals(printTaskManager.getPendingPrintTasks().size(), amountOfPrinters);
+
+        // Start the queue
+        printTaskManager.startQueue();
+
+        // Confirm all printers are filled
+        assertEquals(printTaskManager.getRunningPrintTasks().size(), amountOfPrinters);
     }
 
     @Test
-    void When_a_printer_is_marked_as_ready_a_print_is_selected_that_fits_and_uses_the_same_spool() {
+    public void testMultiColorPrinter() throws PrintError {
+        // Clear all printers
+        for (Printer printer : printerManager.getPrinters()) {
+            printerManager.removefreeprinter(printer);
 
+            Print multiColorPrint = new Print(
+                    "MultiColorPrint",
+                    200, 200, 200,
+                    new ArrayList<>(List.of(10.0, 20.0, 15.0, 25.0)),
+                    300
+            );
+            printManager.getPrints().add(multiColorPrint);
+
+            Printer singleColorPrinter = new StandardFDM(
+                    1000,
+                    "SingleColorPrinter",
+                    "AwesomeManufacturer",
+                    false,
+                    300, 300, 300
+            );
+
+            Printer multiColorPrinter = new MultiColor(
+                    999,
+                    "MultiColorPrinter",
+                    "AwesomeManufacturer",
+                    false,
+                    300, 300, 300,
+                    4
+            );
+
+            printerManager.addPrinter(singleColorPrinter);
+            printerManager.addPrinter(multiColorPrinter);
+
+            // Add spools (different kind of colors and filamenttypes)
+            List<Spool> spools = getALotOfTestSpools();
+            for (Spool spool : spools) {
+                spoolManager.addSpool(spool);
+            }
+
+            // Create a PrintTask requiring 4 colors
+            PrintTask multiColorTask = new PrintTask(
+                    multiColorPrint,
+                    List.of("Blue", "Red", "Green", "Yellow"),
+                    FilamentType.PLA
+            );
+
+            try {
+                addPrintTask.invoke(
+                        printTaskManager,
+                        multiColorTask.print().getName(),
+                        multiColorTask.colors(),
+                        multiColorTask.filamentType()
+                );
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                fail("Exception while invoking addPrintTaskMethod: " + e.getMessage());
+            }
+
+            // Start the queue
+            printTaskManager.startQueue();
+
+            // Verify the task is assigned to the multi-spool printer
+            assertEquals(1, printTaskManager.getRunningPrintTasks().size());
+            printTaskManager.getRunningPrintTasks().forEach((key, value) ->
+                    assertEquals("MultiColorPrinter", key.getName()));
+        }
     }
-
     @Test
-    void Starting_the_queue_will_attempt_to_fill_all_printers() {
+    public void testDifferentPrintsAndPrinters() throws PrintError {
+        for (Printer printer : printerManager.getPrinters()) {
+            printerManager.removefreeprinter(printer);
+        }
+        StrategyManager strategyManager = StrategyManager.getInstance();
+        strategyManager.printStrategy = Strategy.EFFICIENT;
 
+        Print testPrint = new Print(
+                "TestPrintSingleColor",
+                100, 100, 50,
+                new ArrayList<>(List.of(10.0)),
+                120);
+        printManager.getPrints().add(testPrint);
+
+        Print multiColorTestPrint = new Print(
+                "TestPrintMultiColor",
+                200, 200, 200,
+                new ArrayList<>(List.of(10.0, 20.0, 15.0, 25.0)),
+                300
+        );
+        printManager.getPrints().add(multiColorTestPrint);
+
+        Printer standardFDM = new StandardFDM(
+                100,
+                "StandardFDM",
+                "StandardManufacturer",
+                false,
+                200, 200, 200
+        );
+        printerManager.addPrinter(standardFDM);
+
+        Printer multiColorPrinter = new MultiColor(
+                999,
+                "MultiColorPrinter",
+                "AwesomeManufacturer",
+                true,
+                300, 300, 300,
+                4
+        );
+        printerManager.addfreeprinter(multiColorPrinter);
+
+        List<Spool> spools = getALotOfTestSpools();
+        for (Spool spool : spools) {
+            spoolManager.addSpool(spool);
+        }
+
+        // Create random different print tasks
+        PrintTask task1 = new PrintTask(testPrint, List.of("Blue"), FilamentType.ABS);
+        PrintTask task2 = new PrintTask(multiColorTestPrint, List.of("Blue", "Red", "Green", "Yellow"), FilamentType.PLA);
+        PrintTask task3 = new PrintTask(testPrint, List.of("Red"), FilamentType.PETG);
+        PrintTask task4 = new PrintTask(multiColorTestPrint, List.of("Blue", "Red", "Green", "Yellow"), FilamentType.PLA);
+        PrintTask task5 = new PrintTask(testPrint, List.of("Yellow"), FilamentType.PLA);
+        PrintTask task6 = new PrintTask(testPrint, List.of("Green"), FilamentType.PETG);
+        PrintTask task7 = new PrintTask(multiColorTestPrint, List.of("Blue", "Red", "Green", "Yellow"), FilamentType.PETG);
+        PrintTask task8 = new PrintTask(multiColorTestPrint, List.of("Blue", "Red", "Green", "Yellow"), FilamentType.PLA);
+
+        // Use reflection to call private addPrintTask(String, List, FilamentType)
+        try {
+            for (int i = 1; i <= 8; i++) {
+                PrintTask task = switch (i) {
+                    case 1 -> task1;
+                    case 2 -> task2;
+                    case 3 -> task3;
+                    case 4 -> task4;
+                    case 5 -> task5;
+                    case 6 -> task6;
+                    case 7 -> task7;
+                    case 8 -> task8;
+                    default -> throw new IllegalStateException("Unexpected value: " + i);
+                };
+                addPrintTask.invoke(
+                        printTaskManager,
+                        task.print().getName(),
+                        task.colors(),
+                        task.filamentType()
+                );
+            }
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            fail("Exception while invoking addPrintTaskMethod: " + e.getMessage());
+        }
+
+        // Test if all tasks in the queue
+        assertEquals(8, printTaskManager.getPendingPrintTasks().size());
+        // Start the queue
+        printTaskManager.startQueue();
+
+        // Verify the tasks are assigned to the printers
+        assertEquals(2, printTaskManager.getRunningPrintTasks().size());
+
+        // Mark the printers as ready and verify the next tasks are assigned
+        printTaskManager.registerPrintCompletion(100);
+        printTaskManager.registerPrintCompletion(999);
+
+
+        assertEquals(2, printTaskManager.getRunningPrintTasks().size());
+        printTaskManager.registerPrintCompletion(100);
+        printTaskManager.registerPrintCompletion(999);
+        printTaskManager.registerPrintCompletion(100);
+        printTaskManager.registerPrintCompletion(100);
+        printTaskManager.registerPrintCompletion(999);
+
+        printTaskManager.registerPrintCompletion(999);
+        printTaskManager.registerPrintCompletion(999);
+
+
+        assertEquals(0, printTaskManager.getRunningPrintTasks().size());
+        assertEquals(0, printTaskManager.getPendingPrintTasks().size());
     }
 
-    @Test
-    void When_adding_multiple_prints_in_the_order_of_Blue_Red_Blue_and_a_correct_printer_has_a_Blue_spool_It_will_select_the_third_print_when_it_is_marked_ready() {
+    public List<Spool> getALotOfTestSpools() {
+        Spool yellowSpoolPla = new Spool(201, "Yellow", FilamentType.PLA, 2000.0);
+        Spool blueSpoolPla = new Spool(202, "Blue", FilamentType.PLA, 2000.0);
+        Spool redSpoolPla = new Spool(203, "Red", FilamentType.PLA, 2000.0);
+        Spool greenSpoolPla = new Spool(204, "Green", FilamentType.PLA, 2000.0);
+        Spool orangeSpoolPla = new Spool(205, "Orange", FilamentType.PLA, 2000.0);
+        Spool yellowSpoolPla2 = new Spool(201, "Yellow", FilamentType.PLA, 2000.0);
+        Spool blueSpoolPla2 = new Spool(202, "Blue", FilamentType.PLA, 2000.0);
+        Spool redSpoolPla2 = new Spool(203, "Red", FilamentType.PLA, 2000.0);
+        Spool greenSpoolPla2 = new Spool(204, "Green", FilamentType.PLA, 2000.0);
+        Spool orangeSpoolPla2 = new Spool(205, "Orange", FilamentType.PLA, 2000.0);
+        Spool yellowSpoolPetg = new Spool(206, "Yellow", FilamentType.PETG, 2000.0);
+        Spool blueSpoolPetg = new Spool(207, "Blue", FilamentType.PETG, 2000.0);
+        Spool redSpoolPetg = new Spool(208, "Red", FilamentType.PETG, 2000.0);
+        Spool greenSpoolPetg = new Spool(209, "Green", FilamentType.PETG, 2000.0);
+        Spool orangeSpoolPetg = new Spool(210, "Orange", FilamentType.PETG, 2000.0);
+        Spool yellowSpoolAbs = new Spool(211, "Yellow", FilamentType.ABS, 2000.0);
+        Spool blueSpoolAbs = new Spool(212, "Blue", FilamentType.ABS, 2000.0);
+        Spool redSpoolAbs = new Spool(213, "Red", FilamentType.ABS, 2000.0);
+        Spool greenSpoolAbs = new Spool(214, "Green", FilamentType.ABS, 2000.0);
+        Spool orangeSpoolAbs = new Spool(215, "Orange", FilamentType.ABS, 2000.0);
 
+        List<Spool> lotsOfSpools = new ArrayList<>();
+        lotsOfSpools.add(yellowSpoolPla);
+        lotsOfSpools.add(blueSpoolPla);
+        lotsOfSpools.add(redSpoolPla);
+        lotsOfSpools.add(greenSpoolPla);
+        lotsOfSpools.add(orangeSpoolPla);
+        lotsOfSpools.add(yellowSpoolPla2);
+        lotsOfSpools.add(blueSpoolPla2);
+        lotsOfSpools.add(redSpoolPla2);
+        lotsOfSpools.add(greenSpoolPla2);
+        lotsOfSpools.add(orangeSpoolPla2);
+        lotsOfSpools.add(yellowSpoolPetg);
+        lotsOfSpools.add(blueSpoolPetg);
+        lotsOfSpools.add(redSpoolPetg);
+        lotsOfSpools.add(greenSpoolPetg);
+        lotsOfSpools.add(orangeSpoolPetg);
+        lotsOfSpools.add(yellowSpoolAbs);
+        lotsOfSpools.add(blueSpoolAbs);
+        lotsOfSpools.add(redSpoolAbs);
+        lotsOfSpools.add(greenSpoolAbs);
+        lotsOfSpools.add(orangeSpoolAbs);
+
+        return lotsOfSpools;
     }
-
-    @Test
-    void print_and_printer_truthtable(){
-
-    }
-
-
 }

@@ -15,7 +15,7 @@ import java.util.List;
 
 public class StrategyManager {
     private static StrategyManager instance;
-    private Strategy printStrategy = Strategy.DEFAULT; // Initalize on default printing strategy
+    public Strategy printStrategy = Strategy.DEFAULT; // Initalize on default printing strategy
     private final HashMap<Strategy, PrintStrategyInterface> printStrategies = new HashMap<>();
 
     public StrategyManager() {
