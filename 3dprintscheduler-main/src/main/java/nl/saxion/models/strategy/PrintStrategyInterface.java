@@ -1,6 +1,6 @@
-package nl.saxion.Models.strategy;
+package nl.saxion.models.strategy;
 
-import nl.saxion.Models.printers.Printer;
+import nl.saxion.models.printers.Printer;
 
 public interface PrintStrategyInterface {
     void assignTasksToPrinters(Printer printer);

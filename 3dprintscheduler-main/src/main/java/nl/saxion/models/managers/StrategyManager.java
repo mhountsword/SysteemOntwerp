@@ -1,27 +1,26 @@
-package nl.saxion.Models.managers;
+package nl.saxion.models.managers;
 
-import nl.saxion.Facade;
-import nl.saxion.Models.observer.Observer;
-import nl.saxion.Models.observer.Updater;
-import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.strategy.DefaultStrategy;
-import nl.saxion.Models.strategy.EfficientStrategy;
-import nl.saxion.Models.strategy.PrintStrategyInterface;
-import nl.saxion.Models.strategy.Strategy;
+import nl.saxion.exceptions.PrintError;
+import nl.saxion.models.printers.Printer;
+import nl.saxion.models.strategy.DefaultStrategy;
+import nl.saxion.models.strategy.EfficientStrategy;
+import nl.saxion.models.strategy.PrintStrategyInterface;
+import nl.saxion.models.strategy.Strategy;
 import nl.saxion.utils.NumberInput;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class StrategyManager {
     private static StrategyManager instance;
     public Strategy printStrategy = Strategy.DEFAULT; // Initalize on default printing strategy
+    private final PrintTaskManager printTaskManager = PrintTaskManager.getInstance();
     private final HashMap<Strategy, PrintStrategyInterface> printStrategies = new HashMap<>();
 
     public StrategyManager() {
         printStrategies.put(Strategy.DEFAULT, new DefaultStrategy());
         printStrategies.put(Strategy.EFFICIENT, new EfficientStrategy());
-
     }
 
 
@@ -42,9 +41,12 @@ public class StrategyManager {
         }
     }
 
-    public void startPrinting(List<Printer> printers) {
-        for (Printer printer : printers) {
-            printStrategies.get(this.printStrategy).assignTasksToPrinters(printer);
+    public void startPrinting(List<Printer> printers) throws PrintError {
+        List<Printer> printersCopy = new ArrayList<>(printers); // Make a new array to avoid modification during iteration
+        if(!printTaskManager.getPendingPrintTasks().isEmpty()) {
+            for (Printer printer : printersCopy) {
+                printStrategies.get(this.printStrategy).assignTasksToPrinters(printer);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
-package nl.saxion.Models.managers;
+package nl.saxion.models.managers;
 
-import nl.saxion.Models.prints.Print;
+import nl.saxion.models.prints.Print;
 
 import java.util.ArrayList;
 import java.util.List;

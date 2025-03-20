@@ -1,11 +1,11 @@
-package nl.saxion.Models.managers;
+package nl.saxion.models.managers;
 
-import nl.saxion.Models.observer.Observer;
-import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.prints.PrintTask;
-import nl.saxion.Models.spools.FilamentType;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.observer.Observer;
+import nl.saxion.models.printers.Printer;
+import nl.saxion.models.prints.Print;
+import nl.saxion.models.prints.PrintTask;
+import nl.saxion.models.spools.FilamentType;
+import nl.saxion.models.spools.Spool;
 import nl.saxion.exceptions.PrintError;
 
 import java.util.*;
@@ -31,7 +31,11 @@ public class PrintTaskManager{
     }
 
     public void startQueue() {
-        strategyManager.startPrinting(printerManager.getPrinters());
+        try {
+            strategyManager.startPrinting(printerManager.getFreePrinters());
+        } catch (PrintError e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public void addNewPrintTask() {
@@ -71,11 +75,19 @@ public class PrintTaskManager{
             for (int i = 0; i < print.getFilamentLength().size(); i++) {
                 System.out.print("- Color number: ");
                 int colorNumber = numberInput(1, spools.size());
+
                 if (colorNumber < 1 || colorNumber > spools.size()) {
                     throw new PrintError("invalid color number");
                 }
+
                 Spool spool = spools.get(colorNumber - 1);
-                colors.add(spool.getColor());
+                if(colors.contains(spool.getColor())) {
+                    System.out.println("Duplicate colour selected, please select another color.");
+                    i--;
+                } else {
+                    colors.add(spool.getColor());
+                    System.out.println("Color " + colorNumber + " selected");
+                }
             }
             addPrintTask(print, colors, type);
             System.out.println("----------------------------");
@@ -119,6 +131,9 @@ public class PrintTaskManager{
         IntStream.range(0, minSize)
                 .forEach(i -> spools.get(i).reduceLength(filamentLengths.get(i)));
 
+        for (Spool spool : spools) {
+            spoolManager.returnSpool(spool); // Return used spools back to pool
+        }
     }
 
     public void registerPrintCompletion(int printerId) throws PrintError {
@@ -128,6 +143,9 @@ public class PrintTaskManager{
                 .orElseThrow(() -> new PrintError("cannot find a running task on printer with ID " + printerId));
 
         removeTask(foundEntry, foundEntry.getValue());
+
+        printerManager.addFreePrinter(foundEntry.getKey()); // Make printer free to print again
+        strategyManager.startPrinting(printerManager.getFreePrinters());
        observer.addprints();
     }
 

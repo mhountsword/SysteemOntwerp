@@ -7,14 +7,13 @@ work correctly and without issue.
 ## What should be tested
 
 ### Adding prints
-- When adding a print it should be assigned to a printer that can physically print it that has a matching spool.
-- When adding a print it should be assigned to a printer that can physically print it and a spool change is initiated.
-- When adding a print and there is no printer available that can physically print it is added to the queue.
+- When adding a print it should be assigned to a printer that can physically print it that has a matching spool. X
+- When adding a print it should be assigned to a printer that can physically print it and a spool change is initiated. X
+- When adding a print and there is no printer available that can physically print it is added to the queue. X
 - When a printer is marked as ready a print is selected that fits and uses the same spool.
 - Starting the queue will attempt to fill all printers.
 - When adding multiple prints in the order of Blue, Red, Blue and a correct printer has a Blue spool. 
   It will select the third print when it is marked ready.
-- 
 
 ## Print and Printer fit Truth table
 

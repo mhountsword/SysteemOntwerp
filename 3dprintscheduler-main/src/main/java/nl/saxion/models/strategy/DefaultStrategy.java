@@ -1,16 +1,15 @@
-package nl.saxion.Models.strategy;
+package nl.saxion.models.strategy;
 
-import nl.saxion.Models.managers.PrintTaskManager;
-import nl.saxion.Models.managers.PrinterManager;
-import nl.saxion.Models.managers.SpoolManager;
-import nl.saxion.Models.observer.Observer;
-import nl.saxion.Models.observer.Updater;
-import nl.saxion.Models.printers.MultiColor;
-import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.printers.StandardFDM;
-import nl.saxion.Models.prints.PrintTask;
-import nl.saxion.Models.spools.FilamentType;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.managers.PrintTaskManager;
+import nl.saxion.models.managers.PrinterManager;
+import nl.saxion.models.managers.SpoolManager;
+import nl.saxion.models.observer.Observer;
+import nl.saxion.models.printers.MultiColor;
+import nl.saxion.models.printers.Printer;
+import nl.saxion.models.printers.StandardFDM;
+import nl.saxion.models.prints.PrintTask;
+import nl.saxion.models.spools.FilamentType;
+import nl.saxion.models.spools.Spool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
         PrintTask assignedTask = null;
 
         // Attempt to assign using the printer’s current spools.
-        if (currentSpools.getFirst() != null) {
+        if (!currentSpools.isEmpty() && currentSpools.getFirst() != null) {
             assignedTask = tryAssignTaskWithCurrentSpools(printer, currentSpools);
         }
 
@@ -46,6 +45,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
         if (assignedTask != null) {
             printTaskManager.removePendingPrintTask(assignedTask);
             System.out.println("- Started task: " + assignedTask + " on printer " + printer.getName());
+            printerManager.addPrintingPrinter(printer);
         }
     }
 
@@ -85,7 +85,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
     }
 
     private PrintTask tryAssignTaskWithFreeSpools(Printer printer) {
-        if (getPrinterCurrentTask(printer) != null) {
+        if (printer.isPrinting()) {
             return null;
         }
 
@@ -94,7 +94,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
             switch (printer) {
                 // For single-colour prints/printers, spools are inserted here
                 case StandardFDM standardFDM when task.filamentType() != FilamentType.ABS && task.colors().size() == 1 -> {
-                    PrintTask assigned = getPrintTask(printer, task); //<-- This is where the spool is inserted into the printer
+                    PrintTask assigned = assignPrintTask(printer, task);
                     if (assigned != null) return assigned;
                 }
                 // For multi-colour prints/printers, spools are inserted here
@@ -102,10 +102,12 @@ public class DefaultStrategy implements PrintStrategyInterface {
                     if (task.filamentType() == FilamentType.ABS || task.colors().size() > multi.getMaxColors()) {
                         continue;
                     }
-                    List<Spool> chosenSpools = chooseFreeSpoolsForMultiColor(task); //<-- This is where spools are chosen for the multi-colour print
+                    List<Spool> chosenSpools = chooseFreeSpoolsForMultiColor(task);
                     if (chosenSpools.size() == task.colors().size()) {
                         // Return the current spools to the free pool before switching.
-                        freeSpools.addAll(printer.getCurrentSpools());
+                        if(printer.getCurrentSpools().isEmpty() || printer.getCurrentSpools().getFirst() == null) {
+                            freeSpools.addAll(printer.getCurrentSpools());
+                        }
                         printer.setCurrentSpools(chosenSpools);
                         int position = 1;
                         for (Spool spool : chosenSpools) {
@@ -119,15 +121,13 @@ public class DefaultStrategy implements PrintStrategyInterface {
                         return task;
                     }
                 }
-                default -> {
-                    System.err.println("task not found / printer invalid");
-                }
+                default -> {}
             }
         }
         return null;
     }
 
-    private PrintTask getPrintTask(Printer printer, PrintTask printTask) {
+    private PrintTask assignPrintTask(Printer printer, PrintTask printTask) {
         // Find the first matching spool
         Spool chosenSpool = freeSpools.stream()
                 .filter(spool -> spool.spoolMatch(printTask.colors().getFirst(), printTask.filamentType()))
@@ -138,7 +138,9 @@ public class DefaultStrategy implements PrintStrategyInterface {
 
         // Update printer with the new spool
         runningPrintTasks.put(printer, printTask);
-        freeSpools.add(printer.getCurrentSpools().getFirst()); // Store the old spool back into freeSpools
+        if(printer.getCurrentSpools().getFirst() != null) {
+            freeSpools.add(printer.getCurrentSpools().getFirst()); // Store the old spool back into freeSpools
+        }
         System.out.println("- Spool change: Please place spool " + chosenSpool.getId() + " in printer " + printer.getName());
         freeSpools.remove(chosenSpool);
         printer.setCurrentSpool(chosenSpool);
@@ -152,7 +154,7 @@ public class DefaultStrategy implements PrintStrategyInterface {
         List<Spool> chosenSpools = new ArrayList<>();
         for (String color : task.colors()) {
             for (Spool spool : freeSpools) {
-                if (spool.spoolMatch(color, task.filamentType()) && !containsSpool(chosenSpools, color)) {
+                if (spool.spoolMatch(color, task.filamentType())) {
                     chosenSpools.add(spool);
                     break; // Use one spool per required color.
                 }
@@ -164,10 +166,6 @@ public class DefaultStrategy implements PrintStrategyInterface {
     private void assignTask(Printer printer, PrintTask task) {
         runningPrintTasks.put(printer, task);
         freePrinters.remove(printer);
-    }
-
-    public boolean containsSpool(final List<Spool> list, final String name){
-        return list.stream().anyMatch(o -> o.getColor().equals(name));
     }
 
     public PrintTask getPrinterCurrentTask(Printer printer) {

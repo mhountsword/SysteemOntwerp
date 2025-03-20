@@ -1,6 +1,6 @@
-package nl.saxion.Models.prints;
+package nl.saxion.models.prints;
 
-import nl.saxion.Models.spools.FilamentType;
+import nl.saxion.models.spools.FilamentType;
 
 import java.util.List;
 import java.util.Objects;

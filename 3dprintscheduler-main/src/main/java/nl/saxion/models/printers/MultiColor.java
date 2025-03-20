@@ -1,7 +1,6 @@
-package nl.saxion.Models.printers;
+package nl.saxion.models.printers;
 
-import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.spools.Spool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +8,7 @@ import java.util.List;
 /* Printer capable of printing multiple colors. */
 public class MultiColor extends Printer {
     private final int maxColors;
-    private Spool spool2;
-    private Spool spool3;
-    private Spool spool4;
+    private final ArrayList<Spool> spoolList = new ArrayList<>();
 
     public MultiColor(int id, String printerName, String manufacturer, boolean isHoused, int maxX, int maxY, int maxZ, int maxColors) {
         super(id, printerName, manufacturer, isHoused, maxX, maxY, maxZ);
@@ -21,21 +18,30 @@ public class MultiColor extends Printer {
     @Override
     public List<Spool> getCurrentSpools() {
         List<Spool> spools = new ArrayList<>();
-        spools.add(getCurrentSpool());
-        if(spool2 != null) spools.add(spool2);
-        if(spool3 != null) spools.add(spool3);
-        if(spool4 != null) spools.add(spool4);
+        Spool currentSpool = getCurrentSpool();
+        if(currentSpool != null) {
+            spools.add(currentSpool);
+        }
+
+        for(Spool spool : spoolList) {
+            if(spool != null) {
+                spools.add(spool);
+            }
+        }
         return spools;
     }
-    public int getMaxColors() {
-        return maxColors;
+
+    @Override
+    public void setCurrentSpools(List<Spool> spools) {
+        for(Spool spool : spools) {
+            if(spool != null) {
+                spoolList.add(spool);
+            }
+        }
     }
 
-    public void setCurrentSpools(ArrayList<Spool> spools) {
-        setCurrentSpool(spools.get(0));
-        if(spools.size() > 1) spool2 = spools.get(1);
-        if(spools.size() > 2) spool3 = spools.get(2);
-        if(spools.size() > 3) spool4 = spools.get(3);
+    public int getMaxColors() {
+        return maxColors;
     }
 
     @Override

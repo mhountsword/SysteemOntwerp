@@ -1,14 +1,14 @@
-package nl.saxion.Models.strategy;
+package nl.saxion.models.strategy;
 
-import nl.saxion.Models.managers.PrintTaskManager;
-import nl.saxion.Models.managers.PrinterManager;
-import nl.saxion.Models.managers.SpoolManager;
-import nl.saxion.Models.printers.MultiColor;
-import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.printers.StandardFDM;
-import nl.saxion.Models.prints.PrintTask;
-import nl.saxion.Models.spools.FilamentType;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.managers.PrintTaskManager;
+import nl.saxion.models.managers.PrinterManager;
+import nl.saxion.models.managers.SpoolManager;
+import nl.saxion.models.printers.MultiColor;
+import nl.saxion.models.printers.Printer;
+import nl.saxion.models.printers.StandardFDM;
+import nl.saxion.models.prints.PrintTask;
+import nl.saxion.models.spools.FilamentType;
+import nl.saxion.models.spools.Spool;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +22,7 @@ public class EfficientStrategy implements PrintStrategyInterface {
     private final List<PrintTask> pendingPrintTasks = printTaskManager.getPendingPrintTasks();
     private final List<Printer> freePrinters = printerManager.getFreePrinters();
     private final List<Spool> freeSpools = spoolManager.getFreeSpools();
+
 
     @Override
     public void assignTasksToPrinters(Printer printer) {
@@ -60,7 +61,9 @@ public class EfficientStrategy implements PrintStrategyInterface {
 
         if (bestSpool != null) {
             // Return the current spools to the free pool before switching.
-            freeSpools.addAll(printer.getCurrentSpools());
+            if(!printer.getCurrentSpools().contains(null)) {
+                freeSpools.addAll(printer.getCurrentSpools());
+            }
             printer.setCurrentSpool(bestSpool);
             freeSpools.remove(bestSpool);
             printTaskManager.removePendingPrintTask(task);
@@ -68,6 +71,7 @@ public class EfficientStrategy implements PrintStrategyInterface {
             freePrinters.remove(printer);
             System.out.println("- Started task: " + task + " on printer " + printer.getName() + " with spool " + bestSpool.getId());
             System.out.println("- Spool change: Please place spool " + bestSpool.getId() + " in printer " + printer.getName());
+            printer.setPrinting(true);
         }
     }
 
@@ -103,15 +107,16 @@ public class EfficientStrategy implements PrintStrategyInterface {
         }
 
         if (possible && chosenSpools.size() == task.colors().size()) {
-            // Return the current spools to the free pool before switching.
-            freeSpools.addAll(printer.getCurrentSpools());
             printer.setCurrentSpools(chosenSpools);
             freeSpools.removeAll(chosenSpools);
+
             printTaskManager.removePendingPrintTask(task);
             runningPrintTasks.put(printer, task);
             freePrinters.remove(printer);
+
             System.out.println("- Started task: " + task + " on printer " + printer.getName() + " with spools: " +
                     chosenSpools.stream().map(Spool::getId).collect(Collectors.toList()));
+            printerManager.addPrintingPrinter(printer);
             int position = 1;
             for (Spool spool : chosenSpools) {
                 System.out.println("- Spool change: Please place spool " + spool.getId() +

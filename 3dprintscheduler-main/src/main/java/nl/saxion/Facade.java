@@ -1,11 +1,11 @@
 package nl.saxion;
 
-import nl.saxion.Models.managers.*;
-import nl.saxion.Models.observer.Observer;
-import nl.saxion.Models.observer.Updater;
-import nl.saxion.Models.printers.*;
-import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.managers.*;
+import nl.saxion.models.observer.Observer;
+import nl.saxion.models.observer.Updater;
+import nl.saxion.models.printers.*;
+import nl.saxion.models.prints.Print;
+import nl.saxion.models.spools.Spool;
 import nl.saxion.exceptions.PrintError;
 import nl.saxion.utils.readers.Reader;
 
@@ -67,14 +67,19 @@ public class Facade implements Updater {
     }
 
     public void registerPrintCompletion() {
-        System.out.println("---------- Register Print Completion ----------");
-        System.out.print("- Printer ID: ");
-        System.out.println("-------------------------------------------");
-        int printerId = scanner.nextInt();
-        try {
-            printTaskManager.registerPrintCompletion(printerId);
-        } catch (PrintError e) {
-            System.out.println(e.getMessage());
+        if(printTaskManager.getRunningPrintTasks().isEmpty()) {
+            System.out.println("No running print tasks. please start a print queue first");
+        } else {
+            System.out.println("---------- Register Print Completion ----------");
+            printerManager.printBusyPrinters();
+            System.out.print("- Printer ID: ");
+            int printerId = scanner.nextInt();
+            try {
+                printTaskManager.registerPrintCompletion(printerId);
+                System.out.println(spoolManager.getFreeSpools().size() + " spool(s) left.");
+            } catch (PrintError e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -83,9 +88,13 @@ public class Facade implements Updater {
     }
 
     public void startPrintQueue() {
-        System.out.println("---------- Starting Print Queue ----------");
-        printTaskManager.startQueue();
-        System.out.println("-----------------------------------");
+        if (printTaskManager.getPendingPrintTasks().isEmpty()) {
+            System.out.println("No pending print tasks. please add a new print task first");
+        } else {
+            System.out.println("---------- Starting Print Queue ----------");
+            printTaskManager.startQueue();
+            System.out.println("-----------------------------------");
+        }
     }
 
     public void showPendingPrintTasks() {
@@ -104,11 +113,11 @@ public class Facade implements Updater {
         spoolManager.printSpools();
     }
 
-    public int getSpoolchanges() {
+    public int getSpoolChanges() {
         return spoolchanges;
     }
 
-    public int getTotalprints() {
+    public int getTotalPrints() {
         return totalprints;
     }
 
@@ -137,10 +146,10 @@ public class Facade implements Updater {
         return instance;
     }
 
-    public void showstats() {
+    public void showStats() {
         System.out.println("---------- Statistics ----------");
-        System.out.println("Spool changes: " + getSpoolchanges());
-        System.out.println("total prints: " + getTotalprints());
+        System.out.println("Spool changes: " + getSpoolChanges());
+        System.out.println("total prints: " + getTotalPrints());
         System.out.println("-------------------------------------------");
 
     }

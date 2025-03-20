@@ -1,11 +1,11 @@
-package nl.saxion.Models.printers;
+package nl.saxion.models.printers;
 
-import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.prints.Print;
+import nl.saxion.models.spools.Spool;
 
 import java.util.List;
 
-public class Printer {
+public abstract class Printer {
     private final int id;
     private final String name;
     private final String manufacturer;
@@ -13,6 +13,7 @@ public class Printer {
     private final int maxX;
     private final int maxY;
     private final int maxZ;
+    private boolean isPrinting = false;
     private Spool currentSpool;
 
     public Printer(int id, String printerName, String manufacturer, boolean isHoused, int maxX, int maxY, int maxZ) {
@@ -25,24 +26,16 @@ public class Printer {
         this.maxZ = maxZ;
     }
 
-    public int CalculatePrintTime(String filename){
-        return 0;
-    }
-
     public Spool getCurrentSpool() {
         return currentSpool;
     }
 
+    public abstract List<Spool> getCurrentSpools();
+
+    public abstract void setCurrentSpools(List<Spool> spools);
+
     public void setCurrentSpool(Spool currentSpool) {
         this.currentSpool = currentSpool;
-    }
-
-    public List<Spool> getCurrentSpools(){
-        return null;
-    }
-
-    public void setCurrentSpools(List<Spool> spools){
-        this.currentSpool = spools.getFirst();
     }
 
     public boolean printFits(Print print){
@@ -83,6 +76,14 @@ public class Printer {
 
     public int getMaxZ() {
         return maxZ;
+    }
+
+    public boolean isPrinting() {
+        return isPrinting;
+    }
+
+    public void setPrinting(boolean isPrinting) {
+        this.isPrinting = isPrinting;
     }
 
     public boolean isHoused() {return isHoused;}

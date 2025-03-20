@@ -1,7 +1,6 @@
-package nl.saxion.Models.printers;
+package nl.saxion.models.printers;
 
-import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.spools.Spool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +16,11 @@ public class StandardFDM extends Printer {
         List<Spool> spools = new ArrayList<>();
         spools.add(getCurrentSpool());
         return spools;
+    }
+
+    @Override
+    public void setCurrentSpools(List<Spool> spools) {
+        this.setCurrentSpool(spools.getFirst());
     }
 
     @Override

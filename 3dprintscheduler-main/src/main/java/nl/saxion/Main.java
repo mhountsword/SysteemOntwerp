@@ -1,7 +1,5 @@
 package nl.saxion;
 
-import nl.saxion.exceptions.PrintError;
-
 import java.util.*;
 
 public class Main {
@@ -26,7 +24,7 @@ public class Main {
                 case 7 -> facade.showPrinters();
                 case 8 -> facade.showSpools();
                 case 9 ->  facade.showPendingPrintTasks();
-                case 10 -> facade.showstats();
+                case 10 -> facade.showStats();
             }
         }
         facade.exit();
@@ -42,7 +40,7 @@ public class Main {
         System.out.println("- 7) Show printers");
         System.out.println("- 8) Show spools");
         System.out.println("- 9) Show pending print tasks");
-        System.out.println("-10) show statistics");
+        System.out.println("- 10) Show statistics");
         System.out.println("- 0) Exit");
     }
 

@@ -1,4 +1,4 @@
-package nl.saxion.Models.prints;
+package nl.saxion.models.prints;
 
 import java.util.ArrayList;
 

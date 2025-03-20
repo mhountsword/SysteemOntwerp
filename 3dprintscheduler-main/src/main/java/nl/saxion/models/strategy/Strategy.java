@@ -1,4 +1,4 @@
-package nl.saxion.Models.strategy;
+package nl.saxion.models.strategy;
 
 public enum Strategy {
     DEFAULT,

@@ -1,4 +1,4 @@
-package nl.saxion.Models.observer;
+package nl.saxion.models.observer;
 
 public interface Updater {
         void update(int spoolchanges, int totalprints);

@@ -1,9 +1,9 @@
 package nl.saxion.utils.readers;
 
-import nl.saxion.Models.spools.FilamentType;
-import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.spools.Spool;
+import nl.saxion.models.spools.FilamentType;
+import nl.saxion.models.prints.Print;
+import nl.saxion.models.printers.Printer;
+import nl.saxion.models.spools.Spool;
 import nl.saxion.exceptions.BadFileExtension;
 import nl.saxion.utils.PrinterFactory;
 import org.json.simple.JSONArray;

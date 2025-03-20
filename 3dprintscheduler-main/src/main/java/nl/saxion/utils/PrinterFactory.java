@@ -1,8 +1,8 @@
 package nl.saxion.utils;
 
-import nl.saxion.Models.printers.MultiColor;
-import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.printers.StandardFDM;
+import nl.saxion.models.printers.MultiColor;
+import nl.saxion.models.printers.Printer;
+import nl.saxion.models.printers.StandardFDM;
 import nl.saxion.exceptions.BadPrinterType;
 
 public class PrinterFactory {

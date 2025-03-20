@@ -1,4 +1,4 @@
-package nl.saxion.Models.observer;
+package nl.saxion.models.observer;
 import java.util.ArrayList;
 
 public class Observer {

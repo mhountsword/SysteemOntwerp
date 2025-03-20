@@ -1,19 +1,14 @@
-package nl.saxion.tests;
-
 import nl.saxion.Facade;
-import nl.saxion.Models.managers.*;
-import nl.saxion.Models.printers.MultiColor;
-import nl.saxion.Models.printers.Printer;
-import nl.saxion.Models.printers.StandardFDM;
-import nl.saxion.Models.prints.Print;
-import nl.saxion.Models.prints.PrintTask;
-import nl.saxion.Models.spools.FilamentType;
-import nl.saxion.Models.spools.Spool;
-import nl.saxion.Models.strategy.Strategy;
+import nl.saxion.models.managers.*;
+import nl.saxion.models.printers.MultiColor;
+import nl.saxion.models.printers.Printer;
+import nl.saxion.models.printers.StandardFDM;
+import nl.saxion.models.prints.Print;
+import nl.saxion.models.prints.PrintTask;
+import nl.saxion.models.spools.FilamentType;
+import nl.saxion.models.spools.Spool;
+import nl.saxion.models.strategy.Strategy;
 import nl.saxion.exceptions.PrintError;
-import nl.saxion.utils.readers.Reader;
-import org.junit.Assert;
-import org.junit.Assert.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +53,7 @@ public class Tests {
 
         for (Printer printer : printerManager.getPrinters()) {
             if (!printerManager.getFreePrinters().contains(printer)) {
-                printerManager.addfreeprinter(printer);
+                printerManager.addFreePrinter(printer);
             }
         }
     }
@@ -67,7 +62,7 @@ public class Tests {
     public void testAddPrintAssignedToPhysicallyCompatiblePrinterWithMatchingSpool() {
         // Make sure there are no other printers available
         for (Printer printer : printerManager.getPrinters()) {
-            printerManager.removefreeprinter(printer);
+            printerManager.removeFreePrinter(printer);
         }
         // Create a test Print
         Print testPrint = new Print(
@@ -99,9 +94,9 @@ public class Tests {
         );
 
         incompatiblePrinter.setCurrentSpool(spool2);
-        printerManager.addfreeprinter(incompatiblePrinter);
+        printerManager.addFreePrinter(incompatiblePrinter);
         compatiblePrinter.setCurrentSpool(spool);
-        printerManager.addfreeprinter(compatiblePrinter);
+        printerManager.addFreePrinter(compatiblePrinter);
 
         // Make sure no tasks are in the queue
         assertTrue(printTaskManager.getPendingPrintTasks().isEmpty());
@@ -129,8 +124,8 @@ public class Tests {
         // Confirm the task was assigned to a printer
         assertTrue(printTaskManager.getRunningPrintTasks().containsValue(task));
 
-        printerManager.removefreeprinter(compatiblePrinter);
-        printerManager.removefreeprinter(incompatiblePrinter);
+        printerManager.removeFreePrinter(compatiblePrinter);
+        printerManager.removeFreePrinter(incompatiblePrinter);
     }
 
     @Test
@@ -183,7 +178,7 @@ public class Tests {
     public void testAddPrintToQueueWhenNoCompatiblePrinterAvailable() {
         // Make sure there are no printers available
         for (Printer printer : printerManager.getPrinters()) {
-            printerManager.removefreeprinter(printer);
+            printerManager.removeFreePrinter(printer);
         }
 
         // Make sure no tasks are in the queue
@@ -224,7 +219,7 @@ public class Tests {
     public void testLessSpoolChanges() throws PrintError {
         // Make sure there are no other printers available for testing purposes
         for (Printer printer : printerManager.getPrinters()) {
-            printerManager.removefreeprinter(printer);
+            printerManager.removeFreePrinter(printer);
         }
 
         // Create test print
@@ -255,7 +250,7 @@ public class Tests {
         compatiblePrinter.setCurrentSpool(blueSpool);
         printerManager.addPrinter(compatiblePrinter);
 
-        // Make queues are empty
+        // Make sure queues are empty
         assertTrue(printTaskManager.getPendingPrintTasks().isEmpty());
         assertTrue(printTaskManager.getRunningPrintTasks().isEmpty());
 
@@ -358,76 +353,80 @@ public class Tests {
     }
 
     @Test
-    public void testMultiColorPrinter() throws PrintError {
-        // Clear all printers
-        for (Printer printer : printerManager.getPrinters()) {
-            printerManager.removefreeprinter(printer);
-
-            Print multiColorPrint = new Print(
-                    "MultiColorPrint",
-                    200, 200, 200,
-                    new ArrayList<>(List.of(10.0, 20.0, 15.0, 25.0)),
-                    300
-            );
-            printManager.getPrints().add(multiColorPrint);
-
-            Printer singleColorPrinter = new StandardFDM(
-                    1000,
-                    "SingleColorPrinter",
-                    "AwesomeManufacturer",
-                    false,
-                    300, 300, 300
-            );
-
-            Printer multiColorPrinter = new MultiColor(
-                    999,
-                    "MultiColorPrinter",
-                    "AwesomeManufacturer",
-                    false,
-                    300, 300, 300,
-                    4
-            );
-
-            printerManager.addPrinter(singleColorPrinter);
-            printerManager.addPrinter(multiColorPrinter);
-
-            // Add spools (different kind of colors and filamenttypes)
-            List<Spool> spools = getALotOfTestSpools();
-            for (Spool spool : spools) {
-                spoolManager.addSpool(spool);
-            }
-
-            // Create a PrintTask requiring 4 colors
-            PrintTask multiColorTask = new PrintTask(
-                    multiColorPrint,
-                    List.of("Blue", "Red", "Green", "Yellow"),
-                    FilamentType.PLA
-            );
-
-            try {
-                addPrintTask.invoke(
-                        printTaskManager,
-                        multiColorTask.print(),
-                        multiColorTask.colors(),
-                        multiColorTask.filamentType()
-                );
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                fail("Exception while invoking addPrintTaskMethod: " + e.getMessage());
-            }
-
-            // Start the queue
-            printTaskManager.startQueue();
-
-            // Verify the task is assigned to the multi-spool printer
-            assertEquals(1, printTaskManager.getRunningPrintTasks().size());
-            printTaskManager.getRunningPrintTasks().forEach((key, value) ->
-                    assertEquals("MultiColorPrinter", key.getName()));
+    public void testMultiColorPrinter() {
+        // Clear all printers safely
+        List<Printer> printersToRemove = new ArrayList<>(printerManager.getPrinters());
+        for (Printer printer : printersToRemove) {
+            printerManager.removeFreePrinter(printer);
         }
+
+        Print multiColorPrint = new Print(
+                "MultiColorPrint",
+                200, 200, 200,
+                new ArrayList<>(List.of(10.0, 20.0, 15.0, 25.0)),
+                300
+        );
+        printManager.getPrints().add(multiColorPrint);
+
+        Printer singleColorPrinter = new StandardFDM(
+                1000,
+                "SingleColorPrinter",
+                "AwesomeManufacturer",
+                false,
+                300, 300, 300
+        );
+
+        Printer multiColorPrinter = new MultiColor(
+                999,
+                "MultiColorPrinter",
+                "AwesomeManufacturer",
+                false,
+                300, 300, 300,
+                4
+        );
+
+        printerManager.addPrinter(singleColorPrinter);
+        printerManager.addPrinter(multiColorPrinter);
+
+        // Add spools (different kind of colors and filamenttypes)
+        List<Spool> spools = getALotOfTestSpools();
+        for (Spool spool : spools) {
+            spoolManager.addSpool(spool);
+        }
+
+        // Create a PrintTask requiring 4 colors
+        PrintTask multiColorTask = new PrintTask(
+                multiColorPrint,
+                List.of("Blue", "Red", "Green", "Yellow"),
+                FilamentType.PLA
+        );
+
+        try {
+            addPrintTask.invoke(
+                    printTaskManager,
+                    multiColorTask.print(),
+                    multiColorTask.colors(),
+                    multiColorTask.filamentType()
+            );
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            fail("Exception while invoking addPrintTaskMethod: " + e.getMessage());
+        }
+
+        // Start the queue
+        printTaskManager.startQueue();
+
+        // Verify the task is assigned to the multi-spool printer
+        assertEquals(1, printTaskManager.getRunningPrintTasks().size());
+        printTaskManager.getRunningPrintTasks().forEach((key, value) ->
+                assertEquals("MultiColorPrinter", key.getName()));
     }
     @Test
     public void testDifferentPrintsAndPrinters() throws PrintError {
         for (Printer printer : printerManager.getPrinters()) {
-            printerManager.removefreeprinter(printer);
+            printerManager.removeFreePrinter(printer);
+        }
+        for (Spool spool : spoolManager.getSpools()) {
+            spoolManager.removeFreeSpool(spool);
         }
         StrategyManager strategyManager = StrategyManager.getInstance();
         strategyManager.printStrategy = Strategy.EFFICIENT;
@@ -464,7 +463,7 @@ public class Tests {
                 300, 300, 300,
                 4
         );
-        printerManager.addfreeprinter(multiColorPrinter);
+        printerManager.addFreePrinter(multiColorPrinter);
 
         List<Spool> spools = getALotOfTestSpools();
         for (Spool spool : spools) {
@@ -489,6 +488,7 @@ public class Tests {
                     case 2 -> task2;
                     case 3 -> task3;
                     case 4 -> task4;
+
                     case 5 -> task5;
                     case 6 -> task6;
                     case 7 -> task7;
@@ -523,9 +523,7 @@ public class Tests {
         printTaskManager.registerPrintCompletion(100);
         printTaskManager.registerPrintCompletion(999);
         printTaskManager.registerPrintCompletion(100);
-        printTaskManager.registerPrintCompletion(100);
-        printTaskManager.registerPrintCompletion(999);
-
+        printTaskManager.registerPrintCompletion(999); // Three multicolour prints to be completed here
         printTaskManager.registerPrintCompletion(999);
         printTaskManager.registerPrintCompletion(999);
 
