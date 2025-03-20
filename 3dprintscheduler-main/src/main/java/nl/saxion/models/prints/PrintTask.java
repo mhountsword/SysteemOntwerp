@@ -36,6 +36,18 @@ public record PrintTask(Print print, List<String> colors, FilamentType filamentT
                 this.filamentType() == other.filamentType();
     }
 
+    public List<String> getColors() {
+        return colors;
+    }
+
+    public FilamentType getFilamentType() {
+        return filamentType;
+    }
+
+    public Print getPrint() {
+        return print;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(print(), colors(), filamentType());

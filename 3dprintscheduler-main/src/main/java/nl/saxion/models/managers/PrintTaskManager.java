@@ -96,6 +96,14 @@ public class PrintTaskManager{
         }
     }
 
+    public void addPredeterminedPrintTask(PrintTask printTask) {
+        try{
+            addPrintTask(printTask.print(), printTask.colors(), printTask.filamentType());
+        } catch (PrintError e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     private void addPrintTask(Print print, List<String> colors, FilamentType filamentType) throws PrintError {
         if (colors.isEmpty()) {
             throw new PrintError("no colors available");

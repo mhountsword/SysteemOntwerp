@@ -1,6 +1,8 @@
 package nl.saxion.models.printers;
 
 import nl.saxion.models.prints.Print;
+import nl.saxion.models.prints.PrintTask;
+import nl.saxion.models.spools.FilamentType;
 import nl.saxion.models.spools.Spool;
 
 import java.util.List;
@@ -40,6 +42,21 @@ public abstract class Printer {
 
     public boolean printFits(Print print){
         return print.getHeight() > getMaxZ() || print.getWidth() > getMaxX() || print.getLength() > getMaxY();
+    }
+
+    public boolean taskCompatible(PrintTask task) {
+        if (task.getFilamentType() == FilamentType.ABS) {
+            if (!isHoused) {
+                return false;
+            }
+        }
+        if (!printFits(task.getPrint())) {
+            return false;
+        }
+        if (task.getColors().size() > getMaxColors(this)) {
+            return false;
+        }
+        return true;
     }
 
     public int getMaxColors(Printer printer) {

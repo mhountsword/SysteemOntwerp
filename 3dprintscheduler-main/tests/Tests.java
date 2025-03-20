@@ -17,6 +17,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -530,6 +532,91 @@ public class Tests {
 
         assertEquals(0, printTaskManager.getRunningPrintTasks().size());
         assertEquals(0, printTaskManager.getPendingPrintTasks().size());
+    }
+
+    @Test
+    public void testDifferentPrintsAndPrintersBasedOnTruthTable() {
+        ArrayList<PrintTask> PLAPrintTasks = initializePlaAndPetgprints();
+        for (PrintTask task : PLAPrintTasks) {
+            printTaskManager.addPredeterminedPrintTask(task);
+        }
+        ArrayList<PrintTask> ABSPrintTasks = initializeAbsPrints();
+        for (PrintTask task : ABSPrintTasks) {
+            printTaskManager.addPredeterminedPrintTask(task);
+        }
+        List<Spool> testSpools = getALotOfTestSpools();
+        for (Spool spool : testSpools) {
+            spoolManager.addSpool(spool);
+        }
+
+        int initialPendingTasks = printTaskManager.getPendingPrintTasks().size();
+        printTaskManager.startQueue();
+        for (Printer printer : new ArrayList<>(printerManager.getPrintingPrinters())) {
+            try {
+                printTaskManager.registerPrintCompletion(printer.getId());
+            } catch (PrintError e) {
+                System.err.println(e.getMessage());
+            }
+        }
+
+        // Assert that some tasks have moved from pending to running
+        assertTrue(printTaskManager.getPendingPrintTasks().size() < initialPendingTasks, "Some print tasks should have moved from pending to running.");
+        assertTrue(!printTaskManager.getRunningPrintTasks().isEmpty() || initialPendingTasks == printTaskManager.getPendingPrintTasks().size(), "Some print tasks should be running if compatible printers are available, or no tasks should run if none are compatible.");
+        // Get the total number of printers
+        int totalPrinters = printerManager.getPrinters().size();
+
+        // Assert that the number of running tasks does not exceed the number of printers
+        assertTrue(printTaskManager.getRunningPrintTasks().size() <= totalPrinters, "The number of running tasks should not exceed the total number of printers.");
+
+        for (Map.Entry<Printer, PrintTask> entry : printTaskManager.getRunningPrintTasks().entrySet()) {
+            if (entry.getValue().filamentType() == FilamentType.PLA) {
+                assertTrue(entry.getKey() instanceof StandardFDM || entry.getKey() instanceof MultiColor,
+                        "PLA print should be assigned to a StandardFDM or MultiColor printer.");
+            }
+            // Check if PETG prints are assigned to compatible printers
+            if (entry.getValue().filamentType() == FilamentType.PETG) {
+                assertTrue(entry.getKey() instanceof StandardFDM || entry.getKey() instanceof MultiColor,
+                        "PETG print should be assigned to a StandardFDM or MultiColor printer.");
+            }
+            if (entry.getValue().filamentType() == FilamentType.ABS) {
+                assertTrue(entry.getKey().isHoused(), "ABS print should be assigned to a printer that is housed.");
+                assertInstanceOf(StandardFDM.class, entry.getKey(), "ABS print should be assigned to a StandardFDM printer.");
+            }
+            // Check if multi-color prints are assigned to MultiColor printers
+            if (entry.getValue().colors().size() > 1) {
+                assertInstanceOf(MultiColor.class, entry.getKey(), "Multi-color print should be assigned to a MultiColor printer.");
+            }
+        }
+    }
+
+    private ArrayList<PrintTask> initializeAbsPrints() {
+        List<Print> prints = printManager.getPrints();
+        ArrayList<PrintTask> PLAPrintTasks = new ArrayList<>();
+        PrintTask task;
+        for (Print print : prints) {
+            if (print.getFilamentLength().size() > 1) {
+                task = new PrintTask(print, List.of("Blue", "Green", "Red"), FilamentType.ABS);
+            } else {
+                task = new PrintTask(print, List.of("Blue"), FilamentType.ABS);
+            }
+            PLAPrintTasks.add(task);
+        }
+        return PLAPrintTasks;
+    }
+
+    private ArrayList<PrintTask> initializePlaAndPetgprints() {
+        List<Print> prints = printManager.getPrints();
+        ArrayList<PrintTask> PLAPrintTasks = new ArrayList<>();
+        PrintTask task;
+        for (Print print : prints) {
+            if (print.getFilamentLength().size() > 1) {
+                task = new PrintTask(print, List.of("Blue", "Green", "Red"), FilamentType.PLA);
+            } else {
+                task = new PrintTask(print, List.of("Blue"), FilamentType.PLA);
+            }
+            PLAPrintTasks.add(task);
+        }
+        return PLAPrintTasks;
     }
 
     public List<Spool> getALotOfTestSpools() {

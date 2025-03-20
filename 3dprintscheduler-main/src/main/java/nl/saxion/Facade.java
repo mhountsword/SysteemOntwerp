@@ -48,18 +48,7 @@ public class Facade implements Updater {
 
         spools.forEach(spoolManager::addSpool);
         prints.forEach(printManager::addPrint);
-        for (Printer printer : printers) {
-            printerManager.addPrinter(
-                    printer.getId(),
-                    calculatePrinterTypeCategory(printer),
-                    printer.getName(),
-                    printer.getManufacturer(),
-                    printer.isHoused(),
-                    printer.getMaxX(),
-                    printer.getMaxY(),
-                    printer.getMaxZ(),
-                    printer.getMaxColors(printer));
-        }
+        printers.forEach(printerManager::addPrinter);
     }
 
     public void changePrintStrategy() {
