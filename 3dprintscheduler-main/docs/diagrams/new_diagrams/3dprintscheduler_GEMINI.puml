@@ -1,0 +1,360 @@
+@startuml
+
+' Classes in the nl.saxion package
+package nl.saxion {
+    class Facade implements Updater{
+        -printerManager: PrinterManager
+        -printManager: PrintManager
+        -printTaskManager: PrintTaskManager
+        -spoolManager: SpoolManager
+        -strategyManager: StrategyManager
+        -scanner: Scanner
+        -instance: Facade
+        -TYPE_UNKNOWN: int
+        -TYPE_STANDARD_FDM: int
+        -TYPE_HOUSED_MULTICOLOR: int
+        -TYPE_MULTICOLOR: int
+        -TYPE_HOUSED: int
+        -Facade()
+        +changePrintStrategy(): void
+        +registerPrintCompletion(): void
+        +addNewPrintTask(): void
+        +startPrintQueue(): void
+        +showPendingPrintTasks(): void
+        +showPrinters(): void
+        +showPrints(): void
+        +showSpools(): void
+        -calculatePrinterTypeCategory(printer: Printer): int
+        +getInstance(): Facade
+        + update(spoolchanges: int, totalprints: int): void
+    }
+
+    class Main {
+        -scanner: Scanner
+        -facade: Facade
+        +main(args: String): void
+        +run(): void
+        +menu(): void
+    }
+}
+
+' Classes in the nl.saxion.exceptions package
+package nl.saxion.exceptions {
+    class BadFileExtension extends RuntimeException {
+        +BadFileExtension(message: String)
+    }
+
+    class BadPrinterType extends RuntimeException {
+        +BadPrinterType(message: String)
+    }
+
+    class PrintError extends Exception {
+        +PrintError(message: String)
+    }
+}
+
+' Classes in the nl.saxion.Models.managers package
+package nl.saxion.Models.managers {
+    class PrinterManager {
+        -instance: PrinterManager
+        -printers: List<Printer>
+        -freePrinters: List<Printer>
+        +getPrinters(): List<Printer>
+        +getFreePrinters(): List<Printer>
+        +addPrinter(id: int, printerType: int, printerName: String, manufacturer: String, isHoused: boolean, maxX: int, maxY: int, maxZ: int, maxColors: int): void
+        +printPrinters(): void
+        +getInstance(): PrinterManager
+    }
+
+    class PrintManager {
+        -prints: List<Print>
+        -instance: PrintManager
+        +addPrint(print: Print): void
+        +findPrint(printName: String): Print
+        +getPrints(): List<Print>
+        +printPrints(): void
+        +getInstance(): PrintManager
+    }
+
+    class PrintTaskManager {
+        -printerManager: PrinterManager
+        -printManager: PrintManager
+        -spoolManager: SpoolManager
+        -strategyManager: StrategyManager
+        -pendingPrintTasks: List<PrintTask>
+        -runningPrintTasks: Map<Printer, PrintTask>
+        -instance: PrintTaskManager
+        +startQueue(): void
+        +addNewPrintTask(): void
+        -addPrintTask(printName: String, colors: List<String>, filamentType: FilamentType): void
+        -removeTask(foundEntry: Map.Entry<Printer, PrintTask>, task: PrintTask): void
+        +registerPrintCompletion(printerId: int): void
+        +getAllRunningTasks(): Map<Printer, PrintTask>
+        -addPendingPrintTask(printTask: PrintTask): void
+        -removePendingPrintTask(printTask: PrintTask): void
+        +printPendingPrintTasks(): void
+        +getPendingPrintTasks(): List<PrintTask>
+        +getInstance(): PrintTaskManager
+    }
+
+    class SpoolManager {
+        -instance: SpoolManager
+        -spools: List<Spool>
+        -freeSpools: List<Spool>
+        +addSpool(spool: Spool): void
+        +getSpools(): List<Spool>
+        +getFreeSpools(): List<Spool>
+        +printSpools(): void
+        +findMatchingSpools(colors: List<String>, filamentType: FilamentType): List<Spool>
+        +getFilteredSpools(type: FilamentType): List<Spool>
+        +getcolor(): void
+        +getInstance(): SpoolManager
+    }
+
+    class StrategyManager {
+        -instance: StrategyManager
+        -printStrategy: Strategy
+        -printStrategies: HashMap<Strategy, PrintStrategyInterface>
+        +StrategyManager()
+        +changePrintStrategy(): void
+        +startPrinting(printers: List<Printer>): void
+        +getInstance(): StrategyManager
+    }
+}
+
+' Classes in the nl.saxion.Models.printers package
+package nl.saxion.Models.printers {
+    abstract class Printer {
+        -id: int
+        -name: String
+        -manufacturer: String
+        -isHoused: boolean
+        -maxX: int
+        -maxY: int
+        -maxZ: int
+        -currentSpool: Spool
+        +Printer(id: int, printerName: String, manufacturer: String, isHoused: boolean, maxX: int, maxY: int, maxZ: int)
+        +CalculatePrintTime(filename: String): int
+        +getCurrentSpool(): Spool
+        +setCurrentSpool(currentSpool: Spool): void
+        +getCurrentSpools(): List<Spool>
+        +setCurrentSpools(spools: List<Spool>): void
+        +printFits(print: Print): boolean
+        +getMaxColors(printer: Printer): int
+        +toString(): String
+        +getName(): String
+        +getManufacturer(): String
+        +getId(): int
+        +getMaxX(): int
+        +getMaxY(): int
+        +getMaxZ(): int
+        +isHoused(): boolean
+    }
+
+    class MultiColor extends Printer {
+        -maxColors: int
+        -spool2: Spool
+        -spool3: Spool
+        -spool4: Spool
+        +MultiColor(id: int, printerName: String, manufacturer: String, isHoused: boolean, maxX: int, maxY: int, maxZ: int, maxColors: int)
+        +getCurrentSpools(): List<Spool>
+        +getMaxColors(): int
+        +setCurrentSpools(spools: ArrayList<Spool>): void
+        +toString(): String
+    }
+
+    class StandardFDM extends Printer {
+        +StandardFDM(id: int, printerName: String, manufacturer: String, isHoused: boolean, maxX: int, maxY: int, maxZ: int)
+        +getCurrentSpools(): List<Spool>
+        +toString(): String
+    }
+    'class HousedPrinter extends Printer
+}
+
+' Classes in the nl.saxion.Models.prints package
+package nl.saxion.Models.prints {
+    class Print {
+        -name: String
+        -height: int
+        -width: int
+        -length: int
+        -filamentLength: ArrayList<Double>
+        -printTime: int
+        +Print(name: String, height: int, width: int, length: int, filamentLength: ArrayList<Double>, printTime: int)
+        +toString(): String
+        +getName(): String
+        +getLength(): int
+        +getHeight(): int
+        +getWidth(): int
+        +getPrintTime(): int
+        +getFilamentLength(): ArrayList<Double>
+    }
+
+    class PrintTask() {
+        +toString(): String
+    }
+}
+
+' Classes in the nl.saxion.Models.spools package
+package nl.saxion.Models.spools {
+    enum FilamentType {
+        PLA, PETG, ABS
+        +fromTypeString(typeString: String): FilamentType
+    }
+
+    class Spool {
+        -id: int
+        -color: String
+        -filamentType: FilamentType
+        -length: double
+        +Spool(id: int, color: String, filamentType: FilamentType, length: double)
+        +getId(): int
+        +getLength(): double
+        +spoolMatch(color: String, type: FilamentType): boolean
+        +reduceLength(byLength: double): void
+        +getColor(): String
+        +getFilamentType(): FilamentType
+        +toString(): String
+    }
+}
+
+' Classes in the nl.saxion.Models.strategy package
+package nl.saxion.Models.strategy {
+    interface PrintStrategyInterface {
+        +assignTasksToPrinters(printer: Printer): void
+    }
+
+    class DefaultStrategy implements PrintStrategyInterface {
+        -printTaskManager: PrintTaskManager
+        -printerManager: PrinterManager
+        -spoolManager: SpoolManager
+        -runningPrintTasks: Map<Printer, PrintTask>
+        -pendingPrintTasks: List<PrintTask>
+        -freePrinters: List<Printer>
+        -freeSpools: List<Spool>
+        +assignTasksToPrinters(printer: Printer): void
+        -tryAssignTaskWithCurrentSpools(printer: Printer, currentSpools: List<Spool>): PrintTask
+        -matchesCurrentSpools(printer: Printer, task: PrintTask, currentSpools: List<Spool>): boolean
+        -tryAssignTaskWithFreeSpools(printer: Printer): PrintTask
+        -getPrintTask(printer: Printer, printTask: PrintTask): PrintTask
+        -chooseFreeSpoolsForMultiColor(task: PrintTask): List<Spool>
+        -assignTask(printer: Printer, task: PrintTask): void
+        +containsSpool(list: List<Spool>, name: String): boolean
+        +getPrinterCurrentTask(printer: Printer): PrintTask
+    }
+
+    class EfficientStrategy implements PrintStrategyInterface {
+        -printTaskManager: PrintTaskManager
+        -printerManager: PrinterManager
+        -spoolManager: SpoolManager
+        -runningPrintTasks: Map<Printer, PrintTask>
+        -pendingPrintTasks: List<PrintTask>
+        -freePrinters: List<Printer>
+        -freeSpools: List<Spool>
+        +assignTasksToPrinters(printer: Printer): void
+        -assignTaskToStandardFDM(printer: Printer, task: PrintTask): void
+        -assignTaskToMultiColor(printer: Printer, task: PrintTask): void
+        -containsSpoolId(spools: List<Spool>, id: int): boolean
+    }
+
+    enum Strategy {
+        DEFAULT, EFFICIENT
+    }
+}
+
+' Classes in the nl.saxion.utils package
+package nl.saxion.utils {
+    class NumberInput {
+        +numberInput(min: int, max: int): int
+    }
+
+    class PrinterFactory {
+         +createPrinterByType(id: int, type: int, name: String, manufacturer: String, isHoused: boolean, maxX: int, maxY: int, maxZ: int, maxColors: int): Printer
+        -getPrinterType(type: int, maxColors: int): String
+    }
+}
+
+' Classes in the nl.saxion.utils.readers package
+package nl.saxion.utils.readers {
+    interface FileReader {
+        +readFile(filePath: String): JSONArray
+    }
+
+    class CSVAdapter implements FileReader {
+        +readFile(filePath: String): JSONArray
+    }
+
+    class Reader {
+        -printerFactory: PrinterFactory
+        +readPrintsFromFile(filePath: String): ArrayList<Print>
+        +readPrintersFromFile(filePath: String): ArrayList<Printer>
+        +readSpoolsFromFile(filePath: String): ArrayList<Spool>
+        -readSpoolsFromJsonFile(filePath: String): ArrayList<Spool>
+        -readSpoolsFromCsvFile(filePath: String): ArrayList<Spool>
+        -parsePrinter(printerJson: JSONObject): Printer
+        -parsePrint(p: JSONObject): Print
+        -parseSpool(spoolJson: JSONObject): Spool
+        -parseInt(value: Object): int
+    }
+}
+' classes in nl.saxion.Models.observer package
+package nl.saxion.Models.observer{
+  class Observer {
+        - observers: ArrayList<Updater>
+        - instance: Observer
+        - spoolchanges: int
+        - totalprint: int
+        + subscribe(observer: Updater): void
+        + unsubscribe(observer: Updater): void
+        + addspool(): void
+        + addprints(): void
+        - notifyobservers(): void
+        + getInstance(): Observer
+    }
+
+    interface Updater {
+        + update(spoolchanges: int, totalprint: int): void
+    }
+    }
+
+' Relationships
+nl.saxion.Facade --|> nl.saxion.Models.managers.PrinterManager
+nl.saxion.Facade --|> nl.saxion.Models.managers.PrintManager
+nl.saxion.Facade --|> nl.saxion.Models.managers.PrintTaskManager
+nl.saxion.Facade --|> nl.saxion.Models.managers.SpoolManager
+nl.saxion.Facade --|> nl.saxion.Models.managers.StrategyManager
+nl.saxion.Facade --|> nl.saxion.Models.observer.Updater
+nl.saxion.Facade --|> nl.saxion.Models.observer.Observer
+
+nl.saxion.Main --|> nl.saxion.Facade
+
+nl.saxion.Models.managers.PrinterManager --|> nl.saxion.Models.printers.Printer
+nl.saxion.Models.managers.PrintManager --|> nl.saxion.Models.prints.Print
+nl.saxion.Models.managers.PrintTaskManager --|> nl.saxion.Models.managers.PrinterManager
+nl.saxion.Models.managers.PrintTaskManager --|> nl.saxion.Models.managers.PrintManager
+nl.saxion.Models.managers.PrintTaskManager --|> nl.saxion.Models.managers.SpoolManager
+nl.saxion.Models.managers.PrintTaskManager --|> nl.saxion.Models.managers.StrategyManager
+nl.saxion.Models.managers.SpoolManager --|> nl.saxion.Models.spools.Spool
+nl.saxion.Models.managers.StrategyManager --|> nl.saxion.Models.strategy.PrintStrategyInterface
+
+nl.saxion.Models.printers.MultiColor --|> nl.saxion.Models.printers.Printer
+nl.saxion.Models.printers.StandardFDM --|> nl.saxion.Models.printers.Printer
+nl.saxion.Models.printers.HousedPrinter --|> nl.saxion.Models.printers.Printer
+
+nl.saxion.Models.prints.PrintTask --|> nl.saxion.Models.prints.Print
+nl.saxion.Models.spools.Spool --|> nl.saxion.Models.spools.FilamentType
+
+nl.saxion.Models.strategy.DefaultStrategy --|> nl.saxion.Models.strategy.PrintStrategyInterface
+nl.saxion.Models.strategy.EfficientStrategy --|> nl.saxion.Models.strategy.PrintStrategyInterface
+
+nl.saxion.utils.PrinterFactory --|> nl.saxion.Models.printers.StandardFDM
+nl.saxion.utils.PrinterFactory --|> nl.saxion.Models.printers.MultiColor
+
+nl.saxion.utils.readers.CSVAdapter --|> nl.saxion.utils.readers.FileReader
+nl.saxion.utils.readers.Reader --|> nl.saxion.utils.PrinterFactory
+nl.saxion.utils.readers.Reader --|> nl.saxion.Models.spools.FilamentType
+nl.saxion.utils.readers.Reader --|> nl.saxion.Models.prints.Print
+nl.saxion.utils.readers.Reader --|> nl.saxion.Models.printers.Printer
+nl.saxion.utils.readers.Reader --|> nl.saxion.Models.spools.Spool
+
+@enduml
