@@ -55,17 +55,16 @@ public class Facade implements Updater {
         strategyManager.changePrintStrategy();
     }
 
-    public void registerPrintCompletion() {
+    public void registerPrintCompletion(String completionMessage) {
         if(printTaskManager.getRunningPrintTasks().isEmpty()) {
             System.out.println("No running print tasks. please start a print queue first");
         } else {
-            System.out.println("---------- Register Print Completion ----------");
+            System.out.println("---------- Register Print " + completionMessage + " ----------");
             printerManager.printBusyPrinters();
             System.out.print("- Printer ID: ");
             int printerId = scanner.nextInt();
             try {
                 printTaskManager.registerPrintCompletion(printerId);
-                System.out.println(spoolManager.getFreeSpools().size() + " spool(s) left.");
             } catch (PrintError e) {
                 System.out.println(e.getMessage());
             }

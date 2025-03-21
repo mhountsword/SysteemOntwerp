@@ -17,7 +17,8 @@ public class Main {
             System.out.println("-----------------------------------");
             switch (choice) {
                 case 1 -> facade.addNewPrintTask();
-                case 2, 3 -> facade.registerPrintCompletion();
+                case 2 -> facade.registerPrintCompletion("completion");
+                case 3 -> facade.registerPrintCompletion("failure");
                 case 4 ->   facade.changePrintStrategy();
                 case 5 -> facade.startPrintQueue();
                 case 6 -> facade.showPrints();
