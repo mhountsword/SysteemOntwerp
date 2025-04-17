@@ -41,70 +41,83 @@ public class PrintTaskManager{
     public void addNewPrintTask() {
         try {
             System.out.println("---------- New Print Task ----------");
-            List<Print> prints = printManager.getPrints();
-            List<String> colors = new ArrayList<>();
+            Print print = selectPrint();
+            if(print == null) {return;}
+            FilamentType type = selectPrintType();
+            List<String> colors = selectColors(print, type);
 
-            if (prints.isEmpty()) {
-                System.err.println("Error: no prints found");
-                return;
-            }
-            IntStream.range(0, prints.size())
-                    .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
-
-            System.out.print("- Print number: ");
-            int printNumber = numberInput(1, prints.size());
-
-            Print print = prints.get(printNumber - 1);
-
-            System.out.println("---------- Filament Type ----------");
-            System.out.println("- 1: PLA");
-            System.out.println("- 2: PETG");
-            System.out.println("- 3: ABS");
-            System.out.print("- Filament type number: ");
-            int filamentType = numberInput(1, 3);
-            FilamentType type = switch (filamentType) {
-                case 2 -> FilamentType.PETG;
-                case 3 -> FilamentType.ABS;
-                default -> FilamentType.PLA;
-            };
-
-            List<Spool> spools = spoolManager.getFilteredSpools(type);
-            for (int i = 0; i < spools.size(); i++) {
-                System.out.println((i + 1) + ". " + spools.get(i).getColor());
-            }
-            for (int i = 0; i < print.getFilamentLength().size(); i++) {
-                System.out.print("- Color number: ");
-                int colorNumber = numberInput(1, spools.size());
-
-                if (colorNumber < 1 || colorNumber > spools.size()) {
-                    throw new PrintError("invalid color number");
-                }
-
-                Spool spool = spools.get(colorNumber - 1);
-                if(colors.contains(spool.getColor())) {
-                    System.out.println("Duplicate colour selected, please select another color.");
-                    i--;
-                } else {
-                    colors.add(spool.getColor());
-                    System.out.println("Color " + colorNumber + " selected");
-                }
-            }
-            addPrintTask(print, colors, type);
+            addCustomPrintTask(print, colors, type);
             System.out.println("----------------------------");
         } catch (PrintError e) {
             System.out.println(e.getMessage());
         }
     }
 
+    private List<String> selectColors(Print print, FilamentType type) throws PrintError {
+        List<String> colors = new ArrayList<>();
+        List<Spool> spools = spoolManager.getFilteredSpools(type);
+        for (int i = 0; i < spools.size(); i++) {
+            System.out.println((i + 1) + ". " + spools.get(i).getColor());
+        }
+        for (int i = 0; i < print.getFilamentLength().size(); i++) {
+            System.out.print("- Color number: ");
+            int colorNumber = numberInput(1, spools.size());
+
+            if (colorNumber < 1 || colorNumber > spools.size()) {
+                throw new PrintError("invalid color number");
+            }
+
+            Spool spool = spools.get(colorNumber - 1);
+            if(colors.contains(spool.getColor())) {
+                System.out.println("Duplicate colour selected, please select another color.");
+                i--;
+            } else {
+                colors.add(spool.getColor());
+                System.out.println("Color " + colorNumber + " selected");
+            }
+        }
+        return colors;
+    }
+
+    private Print selectPrint() {
+        List<Print> prints = printManager.getPrints();
+
+        if (prints.isEmpty()) {
+            System.err.println("Error: no prints found");
+            System.out.println("Make sure you have added prints to the system.");
+            return null;
+        }
+        IntStream.range(0, prints.size())
+                .forEach(i -> System.out.println("- " + (i + 1) + ": " + prints.get(i).getName()));
+
+        System.out.print("- Print number: ");
+        int printNumber = numberInput(1, prints.size());
+        return prints.get(printNumber - 1);
+    }
+
+    private FilamentType selectPrintType() {
+        System.out.println("---------- Filament Type ----------");
+        System.out.println("- 1: PLA");
+        System.out.println("- 2: PETG");
+        System.out.println("- 3: ABS");
+        System.out.print("- Filament type number: ");
+        int filamentType = numberInput(1, 3);
+        return switch (filamentType) {
+            case 2 -> FilamentType.PETG;
+            case 3 -> FilamentType.ABS;
+            default -> FilamentType.PLA;
+        };
+    }
+
     public void addPredeterminedPrintTask(PrintTask printTask) {
         try{
-            addPrintTask(printTask.print(), printTask.colors(), printTask.filamentType());
+            addCustomPrintTask(printTask.print(), printTask.colors(), printTask.filamentType());
         } catch (PrintError e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private void addPrintTask(Print print, List<String> colors, FilamentType filamentType) throws PrintError {
+    private void addCustomPrintTask(Print print, List<String> colors, FilamentType filamentType) throws PrintError {
         if (colors.isEmpty()) {
             throw new PrintError("no colors available");
         }

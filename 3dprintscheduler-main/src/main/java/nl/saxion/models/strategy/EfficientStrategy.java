@@ -45,7 +45,7 @@ public class EfficientStrategy implements PrintStrategyInterface {
 
     private void assignTaskToStandardFDM(Printer printer, PrintTask task) {
         if (task.colors().size() != 1) {
-            return; // Standard FDM can only handle single color prints with this strategy
+            return; // Standard FDM can only handle single color prints
         }
 
         FilamentType requiredFilamentType = task.filamentType();

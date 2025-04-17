@@ -41,10 +41,7 @@ public class Tests {
         facade = Facade.getInstance();
 
         addPrintTask = PrintTaskManager.class.getDeclaredMethod(
-                "addPrintTask",
-                Print.class,
-                List.class,
-                FilamentType.class);
+                "addCustomPrintTask", Print.class, List.class, FilamentType.class);
         addPrintTask.setAccessible(true);
     }
 
